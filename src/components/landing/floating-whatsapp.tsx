@@ -7,27 +7,32 @@ const WHATSAPP_URL = 'https://wa.me/5511999999999?text=Olá!+Quero+testar+a+IA+d
 
 export function FloatingWhatsApp() {
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
       <motion.a
         href={WHATSAPP_URL}
         target="_blank"
         rel="noopener noreferrer"
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1, duration: 0.3 }}
+        transition={{ delay: 0.8, duration: 0.3 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         aria-label="Testar IA ao Vivo no WhatsApp"
-        className="flex items-center gap-2.5 px-4 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs sm:text-sm rounded-full shadow-[0_4px_25px_rgba(37,211,102,0.45)] border border-[#34e277] transition-all group cursor-pointer"
+        className="flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs sm:text-sm rounded-full shadow-[0_4px_25px_rgba(37,211,102,0.45)] border border-[#34e277] transition-all group cursor-pointer"
       >
-        <div className="relative flex items-center justify-center">
-          <WhatsAppIcon size={20} className="text-white" />
-          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+        <div className="relative flex items-center justify-center shrink-0">
+          <WhatsAppIcon size={18} className="text-white" />
+          <span className="absolute -top-1 -right-1 flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-200" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-200" />
           </span>
         </div>
-        <span className="whitespace-nowrap tracking-tight">Testar IA ao Vivo no WhatsApp</span>
+        <span className="tracking-tight whitespace-nowrap hidden sm:inline">
+          Testar IA ao Vivo no WhatsApp
+        </span>
+        <span className="tracking-tight whitespace-nowrap sm:hidden font-semibold">
+          Falar com IA
+        </span>
       </motion.a>
     </div>
   );

@@ -57,31 +57,33 @@ const segments = [
 
 export function Segments() {
   return (
-    <section id="segmentos" className="py-24 bg-[#111827]/50">
+    <section id="segmentos" className="py-14 sm:py-24 bg-[#111827]/40 border-t border-[#1F2937]/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-16 text-right"
+          className="mb-10 sm:mb-16 text-center sm:text-right"
         >
-          <p className="text-xs tracking-widest uppercase text-cyan-400 mb-3">Para quem é</p>
-          <h2 className="text-4xl sm:text-5xl font-black text-white uppercase leading-tight">
+          <div className="inline-flex items-center gap-2 border border-cyan-500/30 bg-cyan-500/5 px-3 py-1 text-xs text-cyan-400 tracking-wider uppercase mb-3 rounded-full">
+            Para quem é
+          </div>
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight leading-tight px-1">
             Feito para quem<br />
             <span className="text-emerald-400">não pode perder</span><br />
-            nem um lead.
+            nem um único lead.
           </h2>
         </motion.div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5 sm:gap-6">
           {segments.map((seg, i) => (
             <motion.div
               key={seg.name}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.6 }}
-              className={`border border-[#1F2937] bg-[#111827] p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-6 hover:border-emerald-500/20 transition-all duration-300 ${
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              className={`border border-[#1F2937] bg-[#111827] rounded-xl p-5 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 hover:border-emerald-500/20 transition-all duration-300 ${
                 i % 2 === 1 ? 'lg:ml-12' : 'lg:mr-12'
               }`}
             >

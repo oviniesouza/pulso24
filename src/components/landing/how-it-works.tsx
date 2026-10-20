@@ -50,31 +50,31 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section id="como-funciona" className="py-24 bg-[#0B0F19] relative border-t border-[#1F2937]/50">
+    <section id="como-funciona" className="py-14 sm:py-24 bg-[#0B0F19] relative border-t border-[#1F2937]/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Cabeçalho */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-3 py-1 text-xs text-emerald-400 tracking-wider uppercase mb-3 rounded-full">
             <Zap className="h-3.5 w-3.5" />
             Fluxo Completo de Vendas
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight px-1">
             Como Funciona: <br />
             <span className="text-emerald-400">Do primeiro contato até o fechamento</span>
           </h2>
-          <p className="text-gray-400 mt-4 text-sm sm:text-base leading-relaxed">
+          <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-base leading-relaxed px-2">
             Você não precisa entender de tecnologia. Nossa equipe entrega sua IA 100% configurada, pronta para qualificar clientes, agendar reuniões e avisar sua equipe no WhatsApp.
           </p>
         </div>
 
         {/* Os 4 Passos em Grid Harmonioso */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 relative">
           {STEPS.map((s) => {
             const Icon = s.icon;
             return (
               <div
                 key={s.step}
-                className="border border-[#1F2937] bg-[#111827] rounded-xl p-5 sm:p-6 flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300 relative group"
+                className="border border-[#1F2937] bg-[#111827] rounded-xl p-4 sm:p-6 flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300 relative group"
               >
                 <div>
                   {/* Topo do Card com Número e Ícone */}

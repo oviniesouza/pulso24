@@ -25,15 +25,15 @@ function InstagramIcon({ className = 'h-4 w-4' }: { className?: string }) {
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#1F2937] bg-[#0B0F19] py-12">
+    <footer className="border-t border-[#1F2937] bg-[#0B0F19] py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div className="md:col-span-2">
-            <Logo size="lg" className="mb-4" />
-            <p className="text-sm text-gray-400 max-w-sm leading-relaxed">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+          <div className="sm:col-span-2">
+            <Logo size="md" className="mb-3 sm:mb-4" />
+            <p className="text-xs sm:text-sm text-gray-400 max-w-sm leading-relaxed">
               Atendimento comercial 24/7 no WhatsApp com Inteligência Artificial. Triagem, áudios, leitura de documentos e agendamento automático.
             </p>
-            <div className="flex gap-4 mt-5">
+            <div className="flex flex-wrap gap-3 sm:gap-4 mt-4 sm:mt-5">
               <a
                 href="https://wa.me/5511999999999?text=Olá!+Quero+conhecer+o+Pulso+24"
                 target="_blank"

@@ -212,33 +212,35 @@ export function Pricing() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   return (
-    <section id="planos" className="py-24 bg-[#0B0F19] bg-grid">
+    <section id="planos" className="py-14 sm:py-24 bg-[#0B0F19] bg-grid border-t border-[#1F2937]/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-16 text-center"
+          className="mb-10 sm:mb-16 text-center"
         >
-          <p className="text-xs tracking-widest uppercase text-emerald-400 mb-3">Planos e Preços</p>
-          <h2 className="text-4xl sm:text-5xl font-black text-white uppercase leading-tight">
+          <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-3 py-1 text-xs text-emerald-400 tracking-wider uppercase mb-3 rounded-full">
+            Planos e Preços
+          </div>
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight px-1">
             Quanto custa uma venda<br />
             <span className="text-emerald-400">perdida às 23h?</span>
           </h2>
-          <p className="text-gray-400 mt-4 max-w-xl mx-auto">
+          <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-base max-w-xl mx-auto px-2">
             Menos do que você pensa. O Pulso 24 custa menos que um dia de um atendente e trabalha todos os 365 dias do ano.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-4 items-start">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.id}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`border bg-[#111827] p-6 relative flex flex-col h-full ${
+              className={`border bg-[#111827] rounded-xl p-5 sm:p-6 relative flex flex-col h-full ${
                 plan.highlighted
                   ? 'border-emerald-500 ring-1 ring-emerald-500/30'
                   : 'border-[#1F2937]'

@@ -109,14 +109,26 @@ export function Navbar() {
                   {link.label}
                 </a>
               ))}
-              <Button
-                variant="whatsapp"
-                className="mt-2"
-                onClick={() => window.open('https://wa.me/5511999999999?text=Quero+conhecer+o+Pulso+24', '_blank')}
-              >
-                <WhatsAppIcon size={16} />
-                Falar com a IA Agora
-              </Button>
+              <div className="pt-2 flex flex-col gap-2">
+                <a
+                  href="/login"
+                  className="w-full text-center py-2.5 rounded-lg border border-[#1F2937] text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#111827] transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Entrar na Plataforma
+                </a>
+                <Button
+                  variant="whatsapp"
+                  className="w-full h-11 rounded-lg text-xs font-bold"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    window.open('https://wa.me/5511999999999?text=Quero+conhecer+o+Pulso+24', '_blank');
+                  }}
+                >
+                  <WhatsAppIcon size={16} />
+                  Falar com a IA no WhatsApp
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}

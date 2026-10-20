@@ -71,10 +71,10 @@ const TESTIMONIALS = [
 
 export function Testimonials() {
   return (
-    <section id="depoimentos" className="py-24 bg-[#0B0F19] relative border-t border-[#1F2937]/80">
+    <section id="depoimentos" className="py-14 sm:py-24 bg-[#0B0F19] relative border-t border-[#1F2937]/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Barra de Métricas */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 sm:p-8 bg-[#111827] border border-[#1F2937] rounded-2xl mb-20 shadow-xl">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 p-4 sm:p-8 bg-[#111827] border border-[#1F2937] rounded-xl sm:rounded-2xl mb-12 sm:mb-20 shadow-xl">
           {METRICS.map((m, idx) => {
             const Icon = m.icon;
             return (
@@ -84,40 +84,40 @@ export function Testimonials() {
                   idx !== 0 ? 'lg:border-l lg:border-[#1F2937] lg:pl-6' : ''
                 }`}
               >
-                <div className="flex items-center gap-2 text-emerald-400 mb-1">
-                  <Icon className="h-4 w-4" />
-                  <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white font-mono">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-emerald-400 mb-1">
+                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="text-xl sm:text-3xl lg:text-4xl font-black text-white font-mono">
                     {m.value}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm font-bold text-gray-200 mt-1">{m.label}</p>
-                <p className="text-[11px] text-gray-500 mt-0.5">{m.sub}</p>
+                <p className="text-xs sm:text-sm font-bold text-gray-200 mt-0.5 sm:mt-1">{m.label}</p>
+                <p className="text-[10px] sm:text-[11px] text-gray-500 mt-0.5">{m.sub}</p>
               </div>
             );
           })}
         </div>
 
         {/* Cabeçalho dos Depoimentos */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-3 py-1 text-xs text-emerald-400 tracking-wider uppercase mb-3">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+          <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-3 py-1 text-xs text-emerald-400 tracking-wider uppercase mb-3 rounded-full">
             <Quote className="h-3.5 w-3.5" />
             Prova Social & Resultados Reais
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight px-1">
             Quem usa o Pulso 24 <br />
             <span className="text-emerald-400">nunca mais desativa</span>
           </h2>
-          <p className="text-gray-400 mt-4 text-sm sm:text-base leading-relaxed">
+          <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-base leading-relaxed px-2">
             Veja como empresas reais em todo o Brasil transformaram seus atendimentos de WhatsApp em máquinas automáticas de vendas:
           </p>
         </div>
 
         {/* Grid de Depoimentos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          {TESTIMONIALS.map((t, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+          {TESTIMONIALS.map((t) => (
             <div
               key={t.name}
-              className="border border-[#1F2937] bg-[#111827] rounded-xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300 relative group shadow-lg"
+              className="border border-[#1F2937] bg-[#111827] rounded-xl p-5 sm:p-7 flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300 relative group shadow-lg"
             >
               <div>
                 {/* Estrelas */}

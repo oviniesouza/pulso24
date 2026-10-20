@@ -61,20 +61,22 @@ const fadeUp = {
 
 export function Features() {
   return (
-    <section id="funcionalidades" className="py-24 bg-[#0B0F19]">
+    <section id="funcionalidades" className="py-14 sm:py-24 bg-[#0B0F19] border-t border-[#1F2937]/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header — ASYMMETRIC */}
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-16"
+          transition={{ duration: 0.5 }}
+          className="mb-10 sm:mb-16"
         >
-          <p className="text-xs tracking-widest uppercase text-emerald-400 mb-3">O que a IA faz</p>
-          <h2 className="text-4xl sm:text-5xl font-black text-white uppercase leading-tight">
-            Não é um chatbot.<br />
-            <span className="text-emerald-400">É um vendedor</span><br />
+          <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-3 py-1 text-xs text-emerald-400 tracking-wider uppercase mb-3 rounded-full">
+            O que a IA faz
+          </div>
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight leading-tight">
+            Não é um chatbot comum.<br />
+            <span className="text-emerald-400">É um vendedor comercial</span><br />
             que nunca cansa.
           </h2>
         </motion.div>
@@ -83,7 +85,7 @@ export function Features() {
         <motion.div
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: '-100px' }}
+          viewport={{ once: true, margin: '-50px' }}
           variants={{ show: { transition: { staggerChildren: 0.1 } } }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
@@ -91,7 +93,7 @@ export function Features() {
             <motion.div
               key={feature.title}
               variants={fadeUp}
-              className={`border border-[#1F2937] bg-[#111827] p-6 hover:border-emerald-500/30 transition-all duration-300 group ${
+              className={`border border-[#1F2937] bg-[#111827] rounded-xl p-5 sm:p-6 hover:border-emerald-500/30 transition-all duration-300 group ${
                 i === 1 ? 'md:mt-8' : ''
               } ${
                 i === 3 ? 'md:mt-0 lg:-mt-8' : ''

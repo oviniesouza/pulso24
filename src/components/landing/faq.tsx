@@ -39,33 +39,35 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="py-24 bg-[#111827]/50">
+    <section id="faq" className="py-14 sm:py-24 bg-[#111827]/40 border-t border-[#1F2937]/50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-12"
+          className="mb-8 sm:mb-12 text-center sm:text-left"
         >
-          <p className="text-xs tracking-widest uppercase text-emerald-400 mb-3">Dúvidas</p>
-          <h2 className="text-4xl font-black text-white uppercase">FAQ</h2>
+          <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-3 py-1 text-xs text-emerald-400 tracking-wider uppercase mb-3 rounded-full">
+            Dúvidas Frequentes
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight">Perguntas & Respostas</h2>
         </motion.div>
 
         <div className="space-y-2">
           {faqs.map((faq, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              className="border border-[#1F2937] bg-[#111827]"
+              transition={{ delay: i * 0.04 }}
+              className="border border-[#1F2937] bg-[#111827] rounded-lg overflow-hidden"
             >
               <button
                 onClick={() => setOpen(open === i ? null : i)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1F2937]/50 transition-colors"
+                className="w-full flex items-center justify-between p-3.5 sm:p-4 text-left hover:bg-[#1F2937]/50 transition-colors"
               >
-                <span className="text-sm font-medium text-white pr-4">{faq.q}</span>
+                <span className="text-xs sm:text-sm font-medium text-white pr-3">{faq.q}</span>
                 <ChevronDown
                   className={`h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${
                     open === i ? 'rotate-180 text-emerald-400' : ''
@@ -81,7 +83,7 @@ export function FAQ() {
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <p className="px-4 pb-4 text-sm text-gray-400 leading-relaxed border-t border-[#1F2937] pt-3">
+                    <p className="px-3.5 sm:px-4 pb-3.5 sm:pb-4 text-xs sm:text-sm text-gray-400 leading-relaxed border-t border-[#1F2937] pt-3">
                       {faq.a}
                     </p>
                   </motion.div>
