@@ -40,7 +40,17 @@ export function Navbar() {
       )}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Logo size="md" />
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="cursor-pointer transition-opacity hover:opacity-90"
+          title="Voltar ao início"
+        >
+          <Logo size="md" />
+        </a>
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">

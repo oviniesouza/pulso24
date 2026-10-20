@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, Clock, ShieldCheck, CheckCircle2, TrendingUp, Sparkles, MessageSquare } from 'lucide-react';
+import { ArrowRight, Zap, Clock, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 
@@ -54,21 +54,21 @@ const fadeUp = {
 
 export function Hero() {
   return (
-    <section className="relative min-h-[92vh] flex flex-col justify-center overflow-hidden bg-grid pt-24 pb-16">
+    <section id="hero" className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-grid pt-28 pb-20 sm:pt-36 sm:pb-24">
       {/* Luz ambiente de fundo sutil */}
       <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full pointer-events-none opacity-40 blur-[120px]"
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full pointer-events-none opacity-40 blur-[130px]"
         style={{
-          background: 'radial-gradient(circle, rgba(16,185,129,0.18) 0%, rgba(6,182,212,0.08) 50%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(16,185,129,0.20) 0%, rgba(6,182,212,0.08) 50%, transparent 70%)',
         }}
       />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate="show"
-          className="flex flex-col items-center text-center"
+          className="flex flex-col items-center text-center max-w-4xl mx-auto"
         >
           {/* Badge de Dor / Conversão do Empresário */}
           <motion.div variants={fadeUp} className="mb-6">
@@ -116,7 +116,7 @@ export function Hero() {
               variant="whatsapp"
               size="xl"
               onClick={() => window.open(WHATSAPP_URL, '_blank')}
-              className="group w-full sm:w-auto shadow-lg shadow-[#25D366]/20 px-8 h-14"
+              className="group w-full sm:w-auto shadow-lg shadow-[#25D366]/20 px-8 h-14 rounded-lg"
             >
               <WhatsAppIcon size={20} />
               <span className="font-bold">Testar a IA ao Vivo no WhatsApp</span>
@@ -127,7 +127,7 @@ export function Hero() {
               variant="outline"
               size="xl"
               onClick={() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' })}
-              className="w-full sm:w-auto px-8 h-14 border-[#1F2937] hover:border-gray-500 hover:bg-[#111827]"
+              className="w-full sm:w-auto px-8 h-14 border-[#1F2937] hover:border-gray-500 hover:bg-[#111827] rounded-lg"
             >
               Ver Planos e Valores
             </Button>
@@ -138,7 +138,7 @@ export function Hero() {
             variants={fadeUp}
             className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-3xl pt-8 border-t border-[#1F2937]/70"
           >
-            <div className="flex items-center justify-center sm:justify-start gap-3 p-3 rounded-lg bg-[#111827]/40 border border-[#1F2937]/60">
+            <div className="flex items-center justify-center sm:justify-start gap-3 p-3 rounded-lg bg-[#111827]/60 border border-[#1F2937]/80">
               <div className="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                 <Zap className="h-4 w-4" />
               </div>
@@ -148,7 +148,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className="flex items-center justify-center sm:justify-start gap-3 p-3 rounded-lg bg-[#111827]/40 border border-[#1F2937]/60">
+            <div className="flex items-center justify-center sm:justify-start gap-3 p-3 rounded-lg bg-[#111827]/60 border border-[#1F2937]/80">
               <div className="h-9 w-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
                 <Clock className="h-4 w-4" />
               </div>
@@ -158,7 +158,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className="flex items-center justify-center sm:justify-start gap-3 p-3 rounded-lg bg-[#111827]/40 border border-[#1F2937]/60">
+            <div className="flex items-center justify-center sm:justify-start gap-3 p-3 rounded-lg bg-[#111827]/60 border border-[#1F2937]/80">
               <div className="h-9 w-9 rounded-lg bg-[#25D366]/10 border border-[#25D366]/30 flex items-center justify-center text-[#25D366] shrink-0">
                 <ShieldCheck className="h-4 w-4" />
               </div>
@@ -170,6 +170,9 @@ export function Hero() {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Degradê sutil de transição para a próxima seção */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-[#0B0F19] pointer-events-none" />
     </section>
   );
 }
