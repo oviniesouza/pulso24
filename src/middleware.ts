@@ -1,13 +1,53 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { verifySessionToken } from '@/lib/auth';
 
 export async function middleware(request: NextRequest) {
-  // Em ambiente local de desenvolvimento, liberamos o acesso direto a todas as telas
-  // para que você possa desenvolver, testar e apresentar sem necessidade de criar usuário prévio no auth
-  return NextResponse.next({ request });
+  const { pathname } = request.nextUrl;
+  const sessionCookie = request.cookies.get('pulso24_session')?.value;
+
+  const session = await verifySessionToken(sessionCookie);
+
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isDashboardRoute = pathname.startsWith('/dashboard');
+  const isLoginRoute = pathname === '/login';
+
+  // 1. Proteger Rotas do Super Admin (/admin)
+  if (isAdminRoute) {
+    if (!session || session.role !== 'super_admin') {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/login';
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
+  // 2. Proteger Rotas do Painel do Cliente (/dashboard)
+  if (isDashboardRoute) {
+    if (!session) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/login';
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
+  // 3. Se já autenticado e tentar acessar /login, redirecionar
+  if (isLoginRoute && session) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.search = '';
+    redirectUrl.pathname = session.role === 'super_admin' ? '/admin' : '/dashboard';
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/admin/:path*',
+    '/dashboard/:path*',
+    '/login',
   ],
 };

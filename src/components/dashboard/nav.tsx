@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Bell, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
 
 const DEMO_CLIENTS = [
   { id: 'advocacia', label: 'Cliente 1: Escritório de Advocacia', color: 'emerald' },
@@ -13,8 +14,18 @@ const DEMO_CLIENTS = [
 type DemoClient = typeof DEMO_CLIENTS[number];
 
 export function DashboardNav() {
+  const router = useRouter();
   const [activeClient, setActiveClient] = useState<DemoClient>(DEMO_CLIENTS[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      router.push('/login');
+      router.refresh();
+    }
+  };
 
   return (
     <header className="border-b border-[#1F2937] bg-[#111827] sticky top-0 z-40">
@@ -67,9 +78,13 @@ export function DashboardNav() {
           <button className="p-2 text-gray-400 hover:text-white transition-colors">
             <Settings className="h-4 w-4" />
           </button>
-          <a href="/" className="p-2 text-gray-400 hover:text-red-400 transition-colors">
+          <button
+            onClick={handleLogout}
+            className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+            title="Sair"
+          >
             <LogOut className="h-4 w-4" />
-          </a>
+          </button>
         </div>
       </div>
     </header>
