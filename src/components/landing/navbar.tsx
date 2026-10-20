@@ -19,8 +19,10 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
-    { label: 'Funcionalidades', href: '#funcionalidades' },
-    { label: 'Para quem é', href: '#segmentos' },
+    { label: 'Demonstração', href: '#demonstracao' },
+    { label: 'Economia', href: '#economia' },
+    { label: 'Como Funciona', href: '#como-funciona' },
+    { label: 'Depoimentos', href: '#depoimentos' },
     { label: 'Planos', href: '#planos' },
     { label: 'FAQ', href: '#faq' },
   ];
