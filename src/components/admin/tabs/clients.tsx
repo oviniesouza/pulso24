@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Eye, Star, Users, TrendingUp, Search, Phone, Wifi, WifiOff, Cloud } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Eye, Star, Users, TrendingUp, Search, Phone, Wifi, WifiOff, Cloud, Filter, X, UserPlus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import { getTenants, type Tenant } from '@/lib/supabase/service';
+import { useAdminView } from '@/contexts/admin-view-context';
 
 export function ClientsTab() {
+  const { clientsFilter, setClientsFilter, searchQuery, setSearchQuery, openNewClientModal } = useAdminView();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [search, setSearch] = useState('');
 
@@ -76,20 +78,76 @@ export function ClientsTab() {
     loadTenants();
   }, [loadTenants]);
 
-  const filtered = tenants.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.niche.toLowerCase().includes(search.toLowerCase())
-  );
+  const effectiveQuery = searchQuery.trim() || search.trim();
+
+  const filtered = useMemo(() => {
+    return tenants.filter((c) => {
+      // Search text filter
+      if (effectiveQuery) {
+        const q = effectiveQuery.toLowerCase();
+        const matches =
+          c.name.toLowerCase().includes(q) ||
+          c.niche.toLowerCase().includes(q) ||
+          (c.owner_name && c.owner_name.toLowerCase().includes(q)) ||
+          (c.owner_phone && c.owner_phone.includes(q));
+        if (!matches) return false;
+      }
+
+      // Clients filter from sidebar
+      if (clientsFilter === 'founders') {
+        return Number(c.monthly_price) === 347.0;
+      }
+      if (clientsFilter === 'evolution') {
+        return c.whatsapp_connected;
+      }
+
+      return true;
+    });
+  }, [tenants, effectiveQuery, clientsFilter]);
 
   const totalMRR = tenants.reduce((acc, c) => acc + Number(c.monthly_price || 0), 0);
   const totalLeads = tenants.reduce((acc, c) => acc + Number(c.leads_count_current_month || 0), 0);
 
   return (
     <div className="space-y-4">
+      {/* Active Filter Notification Bar */}
+      {(clientsFilter !== 'all' || effectiveQuery) && (
+        <div className="flex items-center justify-between p-2.5 bg-[#111827] border border-cyan-500/30 rounded-sm text-xs">
+          <div className="flex items-center gap-2 text-cyan-400">
+            <Filter className="h-3.5 w-3.5 shrink-0" />
+            <span>
+              Filtro ativo:{' '}
+              <strong className="text-white">
+                {clientsFilter === 'founders'
+                  ? '🌟 Clientes Fundadores (R$ 347/mês)'
+                  : clientsFilter === 'evolution'
+                  ? '🔌 Instâncias WhatsApp Conectadas'
+                  : 'Filtro Ativo'}
+              </strong>
+              {effectiveQuery ? ` · Busca: "${effectiveQuery}"` : ''}
+              {' '}({filtered.length} clientes encontrados)
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              setClientsFilter('all');
+              setSearchQuery('');
+              setSearch('');
+            }}
+            className="text-gray-400 hover:text-white flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-sm hover:bg-white/5"
+          >
+            <X className="h-3 w-3" />
+            Limpar Filtros
+          </button>
+        </div>
+      )}
+
       {/* Cards de Métricas Reais do Banco */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="border border-[#1F2937] bg-[#111827] p-4">
+        <div
+          onClick={() => setClientsFilter('all')}
+          className="border border-[#1F2937] hover:border-emerald-500/40 bg-[#111827] p-4 cursor-pointer transition-all"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500 uppercase">Empresas na Base</span>
             <Users className="h-4 w-4 text-emerald-400" />
@@ -101,7 +159,10 @@ export function ClientsTab() {
           </p>
         </div>
 
-        <div className="border border-[#1F2937] bg-[#111827] p-4">
+        <div
+          onClick={() => setClientsFilter('founders')}
+          className="border border-[#1F2937] hover:border-emerald-500/40 bg-[#111827] p-4 cursor-pointer transition-all"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500 uppercase">MRR da Carteira</span>
             <TrendingUp className="h-4 w-4 text-emerald-400" />
@@ -122,21 +183,27 @@ export function ClientsTab() {
         </div>
       </div>
 
-      {/* Busca */}
-      <div className="flex gap-2">
+      {/* Busca & Ação Rápida */}
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por cliente, escritório ou nicho..."
+            value={searchQuery || search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setSearchQuery(e.target.value);
+            }}
+            placeholder="Buscar por cliente, escritório, responsável ou WhatsApp..."
             className="w-full bg-[#111827] border border-[#1F2937] pl-9 pr-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
           />
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 font-mono">
-          <Cloud className="h-3.5 w-3.5" />
-          public.tenants
-        </div>
+        <Button
+          onClick={openNewClientModal}
+          className="bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs h-10 px-4"
+        >
+          <UserPlus className="h-4 w-4 mr-1.5" />
+          + Cadastrar Novo Cliente
+        </Button>
       </div>
 
       {/* Lista de Tenants */}

@@ -116,6 +116,21 @@ export async function getTenants(): Promise<Tenant[]> {
   }
 }
 
+export async function createTenant(tenant: Partial<Tenant>): Promise<{ data: Tenant | null; error: unknown }> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('tenants')
+      .insert([tenant])
+      .select()
+      .single();
+
+    return { data, error };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
+
 export async function updateTenantPrompt(tenantId: string, systemPrompt: string, aiName?: string) {
   try {
     const supabase = createClient();

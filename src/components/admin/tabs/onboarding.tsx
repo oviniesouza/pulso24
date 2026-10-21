@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, Clock, Zap, MessageCircle, FileText, ExternalLink, ArrowRight, Cloud } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, Zap, MessageCircle, FileText, ExternalLink, ArrowRight, Cloud, Filter, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getTenants, updateTenantOnboardingStatus, type Tenant } from '@/lib/supabase/service';
+import { useAdminView } from '@/contexts/admin-view-context';
 
 type OnboardingStatus = 'waiting' | 'configuring' | 'live';
 
@@ -37,6 +38,7 @@ const statusConfig: Record<OnboardingStatus, { label: string; variant: 'warning'
 };
 
 export function OnboardingTab() {
+  const { onboardingFilter, setOnboardingFilter } = useAdminView();
   const [clients, setClients] = useState<ClientItem[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -113,8 +115,40 @@ export function OnboardingTab() {
     await updateTenantOnboardingStatus(clientId, next);
   };
 
+  const visibleClients = useMemo(() => {
+    if (onboardingFilter === 'all') return clients;
+    return clients.filter((c) => c.status === onboardingFilter);
+  }, [clients, onboardingFilter]);
+
   return (
     <div className="space-y-4">
+      {/* Active Filter Notification Bar */}
+      {onboardingFilter !== 'all' && (
+        <div className="flex items-center justify-between p-2.5 bg-[#111827] border border-emerald-500/30 rounded-sm text-xs">
+          <div className="flex items-center gap-2 text-emerald-400">
+            <Filter className="h-3.5 w-3.5 shrink-0" />
+            <span>
+              Filtro ativo na Fila:{' '}
+              <strong className="text-white">
+                {onboardingFilter === 'waiting'
+                  ? '⏳ Pendentes (Aguardando Setup)'
+                  : onboardingFilter === 'configuring'
+                  ? '⚙️ Configurando'
+                  : '🟢 Concluídos / Live'}
+              </strong>{' '}
+              ({visibleClients.length} clientes nesta etapa)
+            </span>
+          </div>
+          <button
+            onClick={() => setOnboardingFilter('all')}
+            className="text-gray-400 hover:text-white flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-sm hover:bg-white/5"
+          >
+            <X className="h-3 w-3" />
+            Ver Todos
+          </button>
+        </div>
+      )}
+
       {/* Resumo da Fila com Conexão ao Supabase */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-emerald-400 font-mono">
@@ -125,20 +159,24 @@ export function OnboardingTab() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { label: 'Aguardando Setup', count: clients.filter((c) => c.status === 'waiting').length, color: 'text-amber-400' },
-          { label: 'Configurando', count: clients.filter((c) => c.status === 'configuring').length, color: 'text-cyan-400' },
-          { label: 'No Ar (Ativos)', count: clients.filter((c) => c.status === 'live').length, color: 'text-emerald-400' },
+          { label: 'Aguardando Setup', filterKey: 'waiting' as const, count: clients.filter((c) => c.status === 'waiting').length, color: 'text-amber-400' },
+          { label: 'Configurando', filterKey: 'configuring' as const, count: clients.filter((c) => c.status === 'configuring').length, color: 'text-cyan-400' },
+          { label: 'No Ar (Ativos)', filterKey: 'live' as const, count: clients.filter((c) => c.status === 'live').length, color: 'text-emerald-400' },
         ].map((s) => (
-          <div key={s.label} className="border border-[#1F2937] bg-[#111827] p-4">
+          <div
+            key={s.label}
+            onClick={() => setOnboardingFilter(s.filterKey)}
+            className="border border-[#1F2937] hover:border-emerald-500/40 bg-[#111827] p-4 cursor-pointer transition-all"
+          >
             <p className={`text-2xl font-black ${s.color}`}>{s.count}</p>
-            <p className="text-xs text-gray-500 mt-0.5 uppercase tracking-wider">{s.label}</p>
+            <p className="text-xs text-gray-400 mt-0.5 uppercase tracking-wider">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Cards de Clientes na Fila */}
       <div className="space-y-3">
-        {clients.map((client) => {
+        {visibleClients.map((client) => {
           const sc = statusConfig[client.status];
           const doneCount = client.checklist.filter((c) => c.done).length;
           const progress = Math.round((doneCount / client.checklist.length) * 100);
