@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#05080E" />
+    </linearGradient>
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+    <filter id="emeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#10B981" flood-opacity="0.5" />
+    </filter>
+    <filter id="cyanGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#06B6D4" flood-opacity="0.7" />
+    </filter>
+  </defs>
+
+  <!-- Luxury App Icon Rounded Container -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)" stroke="#1F2937" stroke-width="2" />
+  <circle cx="256" cy="256" r="220" fill="url(#centerGlow)" />
+
+  <!-- Chat Bubble Body -->
+  <path d="M66 76 L446 76 Q466 76 466 96 L466 353 Q466 373 446 373 L189 373 L107 445 L128 373 L66 373 Q46 373 46 353 L46 96 Q46 76 66 76 Z"
+        fill="#111827"
+        stroke="url(#emeraldGrad)"
+        stroke-width="14"
+        stroke-linejoin="round"
+        filter="url(#emeraldGlow)" />
+
+  <!-- Heartbeat Pulse Line -->
+  <path d="M86 261 L163 261 L197 179 L231 338 L270 194 L309 309 L343 261 L426 261"
+        stroke="url(#pulseGrad)"
+        stroke-width="16"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        fill="none"
+        filter="url(#emeraldGlow)" />
+
+  <!-- Cyan AI Dot -->
+  <circle cx="426" cy="105" r="22" fill="#06B6D4" filter="url(#cyanGlow)" />
+</svg>

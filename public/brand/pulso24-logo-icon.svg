@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+    <filter id="emeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#10B981" flood-opacity="0.45" />
+    </filter>
+    <filter id="cyanGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#06B6D4" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <!-- Chat Bubble Body -->
+  <path d="M51 61 L461 61 Q481 61 481 81 L481 358 Q481 378 461 378 L184 378 L97 455 L118 378 L51 378 Q31 378 31 358 L31 81 Q31 61 51 61 Z"
+        fill="#111827"
+        stroke="url(#emeraldGrad)"
+        stroke-width="14"
+        stroke-linejoin="round"
+        filter="url(#emeraldGlow)" />
+
+  <!-- Heartbeat / EKG Pulse Line -->
+  <path d="M71 256 L153 256 L189 169 L225 338 L266 185 L307 307 L343 256 L441 256"
+        stroke="url(#pulseGrad)"
+        stroke-width="16"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        fill="none"
+        filter="url(#emeraldGlow)" />
+
+  <!-- Cyan AI Dot -->
+  <circle cx="441" cy="91" r="24" fill="#06B6D4" filter="url(#cyanGlow)" />
+</svg>
