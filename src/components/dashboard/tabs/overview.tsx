@@ -171,21 +171,22 @@ export function OverviewTab() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {/* KPI Cards — Interativos & Clicáveis */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         {kpis.map((kpi, i) => (
           <motion.div
             key={kpi.id}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
+            className="w-full h-full flex flex-col"
           >
             <div
               onClick={kpi.onClick}
               role="button"
               tabIndex={0}
-              className="p-4 bg-[#111827] border border-white/10 hover:border-emerald-500/50 hover:bg-white/[0.02] rounded-sm transition-all duration-200 cursor-pointer group flex flex-col justify-between h-full relative overflow-hidden"
+              className="px-5 pt-5 pb-4 bg-[#111827] border border-white/10 hover:border-emerald-500/50 hover:bg-white/[0.02] rounded-sm transition-all duration-200 cursor-pointer group flex flex-col justify-between h-full relative overflow-hidden"
             >
               <div className="flex items-start justify-between mb-3">
                 <div
@@ -213,7 +214,7 @@ export function OverviewTab() {
                 <p className="text-[11px] text-gray-500 mt-0.5">{kpi.sub}</p>
               </div>
 
-              <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400 group-hover:text-emerald-400 transition-colors">
+              <div className="mt-4 pt-3 pb-0.5 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400 group-hover:text-emerald-400 transition-colors">
                 <span>{kpi.actionText}</span>
                 <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
               </div>

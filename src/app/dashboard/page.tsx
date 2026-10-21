@@ -15,16 +15,16 @@ export default function DashboardPage() {
   const { activeTab } = useDashboardView();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {/* High-density Tenant Operational Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/5">
-        <div>
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/5 w-full">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-              {activeTenant.isOwnBot ? <Bot className="h-6 w-6 text-emerald-400" /> : null}
-              {activeTenant.name}
+              {activeTenant.isOwnBot ? <Bot className="h-6 w-6 text-emerald-400 shrink-0" /> : null}
+              <span className="truncate">{activeTenant.name}</span>
             </h1>
-            <Badge variant={activeTenant.isOwnBot ? 'default' : 'secondary'} className="text-[10px]">
+            <Badge variant={activeTenant.isOwnBot ? 'default' : 'secondary'} className="text-[10px] shrink-0">
               {activeTenant.badge}
             </Badge>
           </div>
@@ -51,7 +51,7 @@ export default function DashboardPage() {
         </div>
 
         {activeTenant.isOwnBot && (
-          <div className="inline-flex items-center gap-1.5 text-xs text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 rounded-sm shrink-0">
+          <div className="inline-flex items-center gap-1.5 text-xs text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 rounded-sm shrink-0 self-start sm:self-center">
             <Sparkles className="h-3.5 w-3.5" />
             <span>Robô Oficial da Operação Pulso 24</span>
           </div>
@@ -59,7 +59,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Render Active View dynamically according to Left Sidebar selection */}
-      <div>
+      <div className="w-full">
         {activeTab === 'overview' && <OverviewTab />}
         {activeTab === 'crm' && <CrmTab />}
         {activeTab === 'brain' && <AiBrainTab />}

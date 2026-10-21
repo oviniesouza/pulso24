@@ -196,17 +196,17 @@ export function Sidebar() {
                 </button>
                 <button
                   onClick={() => handleSelectTab('overview')}
-                  className="w-full flex items-center justify-between text-[11px] px-2.5 py-1 text-gray-500 hover:text-gray-300 hover:bg-white/5 rounded-sm transition-colors"
+                  className="w-full flex items-center justify-between text-[11px] px-2.5 py-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-sm transition-all duration-150 group"
                 >
-                  <span>• Métricas de Hoje</span>
-                  <span className="text-[10px] text-emerald-400">247 leads</span>
+                  <span className="group-hover:text-white transition-colors">• Métricas de Hoje</span>
+                  <span className="text-[10px] text-emerald-400 font-semibold group-hover:brightness-125 transition-all">247 leads</span>
                 </button>
                 <button
                   onClick={() => handleSelectTab('overview')}
-                  className="w-full flex items-center justify-between text-[11px] px-2.5 py-1 text-gray-500 hover:text-gray-300 hover:bg-white/5 rounded-sm transition-colors"
+                  className="w-full flex items-center justify-between text-[11px] px-2.5 py-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-sm transition-all duration-150 group"
                 >
-                  <span>• Desempenho da IA</span>
-                  <span className="text-[10px] text-cyan-400">7.2s avg</span>
+                  <span className="group-hover:text-white transition-colors">• Desempenho da IA</span>
+                  <span className="text-[10px] text-cyan-400 font-semibold group-hover:brightness-125 transition-all">7.2s avg</span>
                 </button>
               </div>
             )}

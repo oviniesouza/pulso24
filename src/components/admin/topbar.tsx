@@ -41,7 +41,7 @@ export function AdminTopbar() {
   };
 
   return (
-    <header className="h-16 border-b border-white/10 bg-[#0B0F17]/90 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-4">
+    <header className="h-16 border-b border-white/10 bg-[#0B0F17]/90 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
       {/* Left: Mobile Toggle, Section Title & System Health */}
       <div className="flex items-center gap-3 min-w-0">
         <button
