@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Pause, Play, Bot, User, Send, Paperclip, Phone, Cloud, Mic, FileText } from 'lucide-react';
+import { Pause, Play, Bot, User, Send, Paperclip, Phone, Cloud, Mic, FileText, Filter, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   getLeads,
@@ -14,6 +14,7 @@ import {
   type Message,
 } from '@/lib/supabase/service';
 import { useTenant } from '@/contexts/tenant-context';
+import { useDashboardView } from '@/contexts/dashboard-view-context';
 
 const STAGES = [
   { id: 'novo', label: 'Novo Lead', color: 'text-gray-400', accent: '#1F2937' },
@@ -26,6 +27,7 @@ const STAGES = [
 export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
   const { activeTenant } = useTenant();
   const currentTenantId = activeTenantId || activeTenant.id;
+  const { crmFilter, setCrmFilter, searchQuery, setSearchQuery, targetLeadId, setTargetLeadId } = useDashboardView();
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -119,6 +121,46 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
       setSelectedLead(fallback[0]);
     }
   }, [currentTenantId, selectedLead]);
+
+  // Sincronizar lead vindo do Overview ou busca externa
+  useEffect(() => {
+    if (targetLeadId && leads.length > 0) {
+      const match = leads.find(
+        (l) =>
+          l.id === targetLeadId ||
+          l.name.toLowerCase().includes(targetLeadId.toLowerCase())
+      );
+      if (match) {
+        setSelectedLead(match);
+      }
+    }
+  }, [targetLeadId, leads]);
+
+  // Filtragem com base nos atalhos da Sidebar e busca da Topbar
+  const visibleLeads = useMemo(() => {
+    return leads.filter((lead) => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesQuery =
+          lead.name.toLowerCase().includes(q) ||
+          lead.phone.includes(q) ||
+          (lead.summary && lead.summary.toLowerCase().includes(q));
+        if (!matchesQuery) return false;
+      }
+
+      if (crmFilter === 'hot') {
+        return lead.stage === 'qualificado';
+      }
+      if (crmFilter === 'paused') {
+        return !lead.ai_active;
+      }
+      if (crmFilter === 'scheduled') {
+        return lead.stage === 'agendado';
+      }
+
+      return true;
+    });
+  }, [leads, crmFilter, searchQuery]);
 
   useEffect(() => {
     loadLeadsData();
@@ -230,6 +272,39 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
 
   return (
     <div className="space-y-3">
+      {/* Active Filter Notification Bar */}
+      {(crmFilter !== 'all' || searchQuery.trim() !== '') && (
+        <div className="flex items-center justify-between p-2.5 bg-[#111827] border border-cyan-500/30 rounded-sm text-xs">
+          <div className="flex items-center gap-2 text-cyan-400">
+            <Filter className="h-3.5 w-3.5 shrink-0" />
+            <span>
+              Filtro ativo:{' '}
+              <strong className="text-white">
+                {crmFilter === 'hot'
+                  ? '🔥 Leads Quentes'
+                  : crmFilter === 'paused'
+                  ? '✋ Aguardando Humano'
+                  : crmFilter === 'scheduled'
+                  ? '📅 Reuniões Agendadas'
+                  : 'Filtro Ativo'}
+              </strong>
+              {searchQuery ? ` · Busca: "${searchQuery}"` : ''}
+              {' '}({visibleLeads.length} leads visíveis)
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              setCrmFilter('all');
+              setSearchQuery('');
+            }}
+            className="text-gray-400 hover:text-white flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-sm hover:bg-white/5"
+          >
+            <X className="h-3 w-3" />
+            Limpar Filtros
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-emerald-400 font-mono">
           <Cloud className="h-3.5 w-3.5" />
@@ -242,7 +317,7 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
         <div className="xl:col-span-3 overflow-x-auto">
           <div className="flex gap-3 min-w-[750px]">
             {STAGES.map((col) => {
-              const stageLeads = leads.filter((l) => l.stage === col.id);
+              const stageLeads = visibleLeads.filter((l) => l.stage === col.id);
               return (
                 <div key={col.id} className="flex-1 min-w-[140px]">
                   <div className="flex items-center justify-between mb-2">
