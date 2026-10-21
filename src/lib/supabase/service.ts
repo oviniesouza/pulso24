@@ -149,6 +149,28 @@ export async function updateTenantOnboardingStatus(tenantId: string, status: str
   }
 }
 
+export async function updateTenantWhatsAppStatus(
+  tenantId: string,
+  connected: boolean,
+  instanceName?: string
+) {
+  try {
+    const supabase = createClient();
+    const payload: Record<string, unknown> = { whatsapp_connected: connected };
+    if (instanceName) payload.whatsapp_instance_name = instanceName;
+
+    const { data, error } = await supabase
+      .from('tenants')
+      .update(payload)
+      .eq('id', tenantId)
+      .select();
+
+    return { data, error };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
+
 // ==========================================
 // 2. LEADS & CRM KANBAN
 // ==========================================

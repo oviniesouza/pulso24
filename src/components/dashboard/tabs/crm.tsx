@@ -13,6 +13,7 @@ import {
   type Lead,
   type Message,
 } from '@/lib/supabase/service';
+import { useTenant } from '@/contexts/tenant-context';
 
 const STAGES = [
   { id: 'novo', label: 'Novo Lead', color: 'text-gray-400', accent: '#1F2937' },
@@ -22,7 +23,10 @@ const STAGES = [
   { id: 'ganho', label: 'Convertido', color: 'text-emerald-300', accent: '#6EE7B7' },
 ] as const;
 
-export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111' }: { activeTenantId?: string }) {
+export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
+  const { activeTenant } = useTenant();
+  const currentTenantId = activeTenantId || activeTenant.id;
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -32,46 +36,89 @@ export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111'
 
   // Carregar Leads do Supabase
   const loadLeadsData = useCallback(async () => {
-    const data = await getLeads(activeTenantId);
+    const data = await getLeads(currentTenantId);
     if (data && data.length > 0) {
       setLeads(data);
       if (!selectedLead || !data.some((l) => l.id === selectedLead.id)) {
         setSelectedLead(data[0]);
       }
     } else {
-      // Fallback gracioso com os dados inseridos no seu script
-      const fallback: Lead[] = [
-        {
-          id: 'aaaaaaaa-1111-1111-1111-111111111111',
-          tenant_id: activeTenantId,
-          name: 'Carlos Eduardo (Trabalhista)',
-          phone: '5553991112233',
-          stage: 'qualificado',
-          ai_active: true,
-          summary: 'Ex-funcionário de construtora. Relatou por áudio demissão sem justa causa há 2 meses sem recebimento de horas extras. Tem contracheques e testemunhas. Quer agendar quinta à tarde.',
-          followup_count: 1,
-          next_followup_at: null,
-          last_message_at: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: 'bbbbbbbb-2222-2222-2222-222222222222',
-          tenant_id: activeTenantId,
-          name: 'Mariana Costa (Família)',
-          phone: '5553992223344',
-          stage: 'qualificando',
-          ai_active: true,
-          summary: 'Dúvida sobre revisão de pensão alimentícia. A IA pediu informações sobre a decisão judicial atual.',
-          followup_count: 0,
-          next_followup_at: null,
-          last_message_at: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-        },
-      ];
+      // Fallback específico de acordo com o nicho do tenant selecionado
+      const isPulsoBot = currentTenantId === '00000000-0000-0000-0000-000000000000';
+      const fallback: Lead[] = isPulsoBot
+        ? [
+            {
+              id: 'lead-pulso-01',
+              tenant_id: currentTenantId,
+              name: 'Dr. Renato Dias (Advocacia)',
+              phone: '5511988887711',
+              stage: 'qualificado',
+              ai_active: true,
+              summary: 'Sócio de banca trabalhista com 4 advogados em SP. Mandou áudio contando que perde clientes às 22h. Quer assinar o Plano Pro R$ 497.',
+              followup_count: 1,
+              next_followup_at: null,
+              last_message_at: new Date().toISOString(),
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: 'lead-pulso-02',
+              tenant_id: currentTenantId,
+              name: 'Carla Fontana (Móveis Planejados)',
+              phone: '5541997776622',
+              stage: 'agendado',
+              ai_active: true,
+              summary: 'Dona de showroom em Curitiba. Testou envio de planta baixa e áudio. Chamada de ativação agendada para amanhã às 14h com o Vinícius.',
+              followup_count: 0,
+              next_followup_at: null,
+              last_message_at: new Date().toISOString(),
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: 'lead-pulso-03',
+              tenant_id: currentTenantId,
+              name: 'Rodrigo Albuquerque (Clínica)',
+              phone: '5531987654321',
+              stage: 'qualificando',
+              ai_active: true,
+              summary: 'Diretor de clínica estética em BH. Perguntou sobre conformidade LGPD e travas de segurança jurídica.',
+              followup_count: 0,
+              next_followup_at: null,
+              last_message_at: new Date().toISOString(),
+              created_at: new Date().toISOString(),
+            },
+          ]
+        : [
+            {
+              id: 'aaaaaaaa-1111-1111-1111-111111111111',
+              tenant_id: currentTenantId,
+              name: 'Carlos Eduardo (Trabalhista)',
+              phone: '5553991112233',
+              stage: 'qualificado',
+              ai_active: true,
+              summary: 'Ex-funcionário de construtora. Relatou por áudio demissão sem justa causa há 2 meses sem recebimento de horas extras. Tem contracheques e testemunhas. Quer agendar quinta à tarde.',
+              followup_count: 1,
+              next_followup_at: null,
+              last_message_at: new Date().toISOString(),
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: 'bbbbbbbb-2222-2222-2222-222222222222',
+              tenant_id: currentTenantId,
+              name: 'Mariana Costa (Família)',
+              phone: '5553992223344',
+              stage: 'qualificando',
+              ai_active: true,
+              summary: 'Dúvida sobre revisão de pensão alimentícia. A IA pediu informações sobre a decisão judicial atual.',
+              followup_count: 0,
+              next_followup_at: null,
+              last_message_at: new Date().toISOString(),
+              created_at: new Date().toISOString(),
+            },
+          ];
       setLeads(fallback);
       setSelectedLead(fallback[0]);
     }
-  }, [activeTenantId, selectedLead]);
+  }, [currentTenantId, selectedLead]);
 
   useEffect(() => {
     loadLeadsData();
@@ -90,7 +137,7 @@ export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111'
         setMessages([
           {
             id: 'm1',
-            tenant_id: activeTenantId,
+            tenant_id: currentTenantId,
             lead_id: selectedLead.id,
             sender_type: 'lead',
             content: 'Boa noite, fui demitido mês passado e a empresa não pagou minhas horas extras. Posso mandar áudio explicando?',
@@ -99,7 +146,7 @@ export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111'
           },
           {
             id: 'm2',
-            tenant_id: activeTenantId,
+            tenant_id: currentTenantId,
             lead_id: selectedLead.id,
             sender_type: 'ai',
             content: 'Olá, Carlos! Boa noite. Sou a Clara, assistente do escritório Silva & Associados. Pode enviar o áudio sim, fique à vontade! Vou ouvir tudo com atenção para já adiantar sua triagem com o Dr. Marcos.',
@@ -108,7 +155,7 @@ export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111'
           },
           {
             id: 'm3',
-            tenant_id: activeTenantId,
+            tenant_id: currentTenantId,
             lead_id: selectedLead.id,
             sender_type: 'lead',
             content: '[Áudio transcrito via Whisper (01:14): Trabalhei 3 anos na obra, fazia 2 horas extras todo dia e nunca veio no holerite...]',
@@ -117,7 +164,7 @@ export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111'
           },
           {
             id: 'm4',
-            tenant_id: activeTenantId,
+            tenant_id: currentTenantId,
             lead_id: selectedLead.id,
             sender_type: 'ai',
             content: 'Compreendi perfeitamente, Carlos. Já deixei seu resumo trabalhista pronto para o Dr. Marcos. Para agendarmos sua reunião de análise, você prefere quinta-feira às 14h ou às 16h30?',
@@ -129,7 +176,7 @@ export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111'
       setLoadingMessages(false);
     }
     loadChat();
-  }, [selectedLead, activeTenantId]);
+  }, [selectedLead, currentTenantId]);
 
   // Alternar IA Ativa/Pausada
   const toggleAi = async () => {
@@ -153,7 +200,7 @@ export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111'
 
     const newMsg: Message = {
       id: `temp-${Date.now()}`,
-      tenant_id: activeTenantId,
+      tenant_id: currentTenantId,
       lead_id: selectedLead.id,
       sender_type: 'human',
       content: inputText,
@@ -166,7 +213,7 @@ export function CrmTab({ activeTenantId = '11111111-1111-1111-1111-111111111111'
     setInputText('');
 
     // Grava no Supabase
-    await sendMessage(activeTenantId, selectedLead.id, textToSend, 'human');
+    await sendMessage(currentTenantId, selectedLead.id, textToSend, 'human');
     setSending(false);
   };
 
