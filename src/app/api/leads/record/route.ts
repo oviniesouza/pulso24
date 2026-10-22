@@ -107,6 +107,27 @@ export async function POST(request: Request) {
       if (msgError) {
         console.error('Erro ao registrar mensagens:', msgError);
       }
+
+      // Se teve resposta da IA, debitar o custo real estimado em tokens (~$0.00025)
+      if (aiMessage) {
+        try {
+          const { data: exp } = await supabase
+            .from('saas_expenses')
+            .select('id, balance_remaining')
+            .eq('category', 'openai')
+            .single();
+
+          if (exp && exp.balance_remaining !== null) {
+            const newBal = Math.max(0, Number(exp.balance_remaining) - 0.00025);
+            await supabase
+              .from('saas_expenses')
+              .update({ balance_remaining: newBal, updated_at: new Date().toISOString() })
+              .eq('id', exp.id);
+          }
+        } catch (err) {
+          console.warn('Erro ao atualizar saldo de tokens da OpenAI:', err);
+        }
+      }
     }
 
     return NextResponse.json({

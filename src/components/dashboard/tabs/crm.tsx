@@ -45,80 +45,8 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
         setSelectedLead(data[0]);
       }
     } else {
-      // Fallback específico de acordo com o nicho do tenant selecionado
-      const isPulsoBot = currentTenantId === '00000000-0000-0000-0000-000000000000';
-      const fallback: Lead[] = isPulsoBot
-        ? [
-            {
-              id: 'lead-pulso-01',
-              tenant_id: currentTenantId,
-              name: 'Dr. Renato Dias (Advocacia)',
-              phone: '5511988887711',
-              stage: 'qualificado',
-              ai_active: true,
-              summary: 'Sócio de banca trabalhista com 4 advogados em SP. Mandou áudio contando que perde clientes às 22h. Quer assinar o Plano Pro R$ 497.',
-              followup_count: 1,
-              next_followup_at: null,
-              last_message_at: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: 'lead-pulso-02',
-              tenant_id: currentTenantId,
-              name: 'Carla Fontana (Móveis Planejados)',
-              phone: '5541997776622',
-              stage: 'agendado',
-              ai_active: true,
-              summary: 'Dona de showroom em Curitiba. Testou envio de planta baixa e áudio. Chamada de ativação agendada para amanhã às 14h com o Vinícius.',
-              followup_count: 0,
-              next_followup_at: null,
-              last_message_at: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: 'lead-pulso-03',
-              tenant_id: currentTenantId,
-              name: 'Rodrigo Albuquerque (Clínica)',
-              phone: '5531987654321',
-              stage: 'qualificando',
-              ai_active: true,
-              summary: 'Diretor de clínica estética em BH. Perguntou sobre conformidade LGPD e travas de segurança jurídica.',
-              followup_count: 0,
-              next_followup_at: null,
-              last_message_at: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-            },
-          ]
-        : [
-            {
-              id: 'aaaaaaaa-1111-1111-1111-111111111111',
-              tenant_id: currentTenantId,
-              name: 'Carlos Eduardo (Trabalhista)',
-              phone: '5553991112233',
-              stage: 'qualificado',
-              ai_active: true,
-              summary: 'Ex-funcionário de construtora. Relatou por áudio demissão sem justa causa há 2 meses sem recebimento de horas extras. Tem contracheques e testemunhas. Quer agendar quinta à tarde.',
-              followup_count: 1,
-              next_followup_at: null,
-              last_message_at: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: 'bbbbbbbb-2222-2222-2222-222222222222',
-              tenant_id: currentTenantId,
-              name: 'Mariana Costa (Família)',
-              phone: '5553992223344',
-              stage: 'qualificando',
-              ai_active: true,
-              summary: 'Dúvida sobre revisão de pensão alimentícia. A IA pediu informações sobre a decisão judicial atual.',
-              followup_count: 0,
-              next_followup_at: null,
-              last_message_at: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-            },
-          ];
-      setLeads(fallback);
-      setSelectedLead(fallback[0]);
+      setLeads([]);
+      setSelectedLead(null);
     }
   }, [currentTenantId, selectedLead]);
 

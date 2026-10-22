@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Users,
@@ -22,22 +22,40 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useDashboardView } from '@/contexts/dashboard-view-context';
 import { useTenant } from '@/contexts/tenant-context';
+import { getLeads, type Lead } from '@/lib/supabase/service';
+import { formatRelativeTime } from '@/lib/utils';
 
 export function OverviewTab() {
   const { navigateToCrmWithFilter, navigateToCrmLead, setActiveTab } = useDashboardView();
   const { activeTenant } = useTenant();
 
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+  const [realLeads, setRealLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      const data = await getLeads(activeTenant.id);
+      setRealLeads(data || []);
+      setLoading(false);
+    }
+    load();
+  }, [activeTenant.id]);
+
+  const totalLeads = realLeads.length;
+  const qualifiedCount = realLeads.filter((l) => ['qualificado', 'agendado', 'ganho'].includes(l.stage)).length;
+  const recoveredCount = realLeads.filter((l) => l.followup_count > 0).length;
 
   const kpis = [
     {
       id: 'leads',
       label: 'Leads Atendidos',
-      value: '247',
-      change: '+18%',
+      value: String(totalLeads),
+      change: totalLeads > 0 ? `+${totalLeads}` : '0%',
       positive: true,
       icon: Users,
-      sub: 'este mês',
+      sub: totalLeads > 0 ? 'contatos ativos' : 'aguardando mensagens',
       color: 'emerald',
       actionText: 'Ver no CRM →',
       onClick: () => navigateToCrmWithFilter('all'),
@@ -45,11 +63,11 @@ export function OverviewTab() {
     {
       id: 'qualified',
       label: 'Qualificados pela IA',
-      value: '89',
-      change: '+31%',
+      value: String(qualifiedCount),
+      change: totalLeads > 0 ? `${Math.round((qualifiedCount / (totalLeads || 1)) * 100)}%` : '0%',
       positive: true,
       icon: UserCheck,
-      sub: '36% de conversão',
+      sub: 'conversão de leads',
       color: 'cyan',
       actionText: 'Ver Quentes →',
       onClick: () => navigateToCrmWithFilter('hot'),
@@ -57,11 +75,11 @@ export function OverviewTab() {
     {
       id: 'recovered',
       label: 'Recuperados (Follow-up)',
-      value: '23',
-      change: '+12%',
+      value: String(recoveredCount),
+      change: recoveredCount > 0 ? `+${recoveredCount}` : '0%',
       positive: true,
       icon: RefreshCw,
-      sub: 'economia de leads',
+      sub: 'via régua automática',
       color: 'emerald',
       actionText: 'Ver Régua →',
       onClick: () => setActiveTab('followup'),
@@ -69,8 +87,8 @@ export function OverviewTab() {
     {
       id: 'speed',
       label: 'Tempo de Resposta',
-      value: '7.2s',
-      change: '-2.1s',
+      value: '< 8s',
+      change: '100% IA',
       positive: true,
       icon: Zap,
       sub: '24/7 sem fila',
@@ -80,58 +98,15 @@ export function OverviewTab() {
     },
   ];
 
-  const recentLeads = [
-    {
-      id: 'lead-01',
-      name: 'João Silva',
-      time: 'há 3min',
-      status: 'Quente',
-      stage: 'Qualificado',
-      topic: 'Divórcio consensual e partilha de bens',
-      score: 92,
-      isNight: true,
-    },
-    {
-      id: 'lead-02',
-      name: 'Maria Ferreira',
-      time: 'há 12min',
-      status: 'Morno',
-      stage: 'Qualificando',
-      topic: 'Guarda compartilhada e pensão',
-      score: 67,
-      isNight: false,
-    },
-    {
-      id: 'lead-03',
-      name: 'Carla Fontana',
-      time: 'há 28min',
-      status: 'Quente',
-      stage: 'Agendado',
-      topic: 'Projeto de cozinha planejada + lavanderia',
-      score: 96,
-      isNight: false,
-    },
-    {
-      id: 'lead-04',
-      name: 'Dr. Renato Dias',
-      time: 'há 1h',
-      status: 'Quente',
-      stage: 'Qualificado',
-      topic: 'Revisão contratual trabalhista e horas extras',
-      score: 88,
-      isNight: true,
-    },
-    {
-      id: 'lead-05',
-      name: 'Carlos Mendes',
-      time: 'há 2h',
-      status: 'Morno',
-      stage: 'Qualificando',
-      topic: 'Contrato societário para nova filial',
-      score: 71,
-      isNight: false,
-    },
-  ];
+  const recentLeads = realLeads.slice(0, 5).map((l) => ({
+    id: l.id,
+    name: l.name,
+    time: formatRelativeTime(l.last_message_at || l.created_at),
+    stage: l.stage.charAt(0).toUpperCase() + l.stage.slice(1),
+    topic: l.summary || 'Atendimento comercial via WhatsApp',
+    score: l.stage === 'qualificado' || l.stage === 'agendado' ? 90 : 60,
+    isNight: false,
+  }));
 
   // 12 key hourly time intervals covering 24 hours
   // Night shift hours: 19h to 08h (00h, 02h, 04h, 06h, 20h, 22h)
@@ -405,8 +380,19 @@ export function OverviewTab() {
         </CardHeader>
 
         <CardContent className="p-0">
-          <div className="divide-y divide-white/5">
-            {recentLeads.map((lead) => (
+          {recentLeads.length === 0 ? (
+            <div className="py-12 px-6 text-center">
+              <div className="h-10 w-10 mx-auto mb-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <Users className="h-5 w-5" />
+              </div>
+              <h4 className="text-sm font-semibold text-white mb-1">Nenhum lead registrado ainda</h4>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                Assim que um cliente enviar uma mensagem pelo WhatsApp oficial (+55 53 8445-0964), ele aparecerá aqui com transcrição e qualificação em tempo real.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-white/5">
+              {recentLeads.map((lead) => (
               <div
                 key={lead.id}
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 hover:bg-white/[0.02] transition-colors"
@@ -455,7 +441,8 @@ export function OverviewTab() {
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
