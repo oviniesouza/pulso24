@@ -33,11 +33,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 3. Se já autenticado e tentar acessar /login, redirecionar
+  // 3. Se já autenticado e tentar acessar /login, redirecionar sempre para /dashboard
   if (isLoginRoute && session) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.search = '';
-    redirectUrl.pathname = session.role === 'super_admin' ? '/admin' : '/dashboard';
+    redirectUrl.pathname = '/dashboard';
     return NextResponse.redirect(redirectUrl);
   }
 

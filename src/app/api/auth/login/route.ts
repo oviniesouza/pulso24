@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         role: 'super_admin',
-        redirect: '/admin',
+        redirect: '/dashboard',
       });
     }
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ShieldCheck, Activity } from 'lucide-react';
 import { OnboardingTab } from '@/components/admin/tabs/onboarding';
 import { CostsTab } from '@/components/admin/tabs/costs';
@@ -8,9 +9,29 @@ import { ClientsTab } from '@/components/admin/tabs/clients';
 import { FinancialTab } from '@/components/admin/tabs/financial';
 import { useAdminView } from '@/contexts/admin-view-context';
 import { Badge } from '@/components/ui/badge';
+import { getTenants, getSaasExpenses, type Tenant } from '@/lib/supabase/service';
+import { formatCurrency } from '@/lib/utils';
 
 export default function AdminPage() {
   const { activeTab } = useAdminView();
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getTenants();
+      setTenants(data || []);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  const clientTenants = tenants.filter((t) => t.id !== '00000000-0000-0000-0000-000000000000');
+  const mrr = clientTenants
+    .filter((t) => t.subscription_status === 'active')
+    .reduce((acc, t) => acc + Number(t.monthly_price || 0), 0);
+  const activeTenantsCount = clientTenants.length;
 
   return (
     <div className="space-y-6">
@@ -29,24 +50,22 @@ export default function AdminPage() {
           <p className="text-xs sm:text-sm text-gray-400 mt-1 flex flex-wrap items-center gap-2">
             <span>
               MRR Carteira:{' '}
-              <strong className="text-emerald-400 font-semibold">R$ 2.038,00</strong>
+              <strong className="text-emerald-400 font-semibold">{formatCurrency(mrr)}</strong>
             </span>
             <span className="text-gray-600">·</span>
             <span>
-              Lucro Líquido:{' '}
-              <strong className="text-white font-semibold">R$ 1.858,00</strong>
+              Clientes Ativos:{' '}
+              <strong className="text-white font-semibold">{activeTenantsCount} empresas</strong>
             </span>
             <span className="text-gray-600">·</span>
-            <span>Margem Operacional: <strong className="text-emerald-400">91%</strong></span>
-            <span className="text-gray-600">·</span>
-            <span>4 Empresas Ativas</span>
+            <span>Robô Oficial Pulso 24: <strong className="text-emerald-400">Online</strong></span>
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-400 font-medium rounded-sm">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            SaaS Online & Faturando
+            SaaS Operacional
           </span>
         </div>
       </div>

@@ -27,58 +27,17 @@ export const DEFAULT_TENANTS: DashboardTenant[] = [
     name: 'Pulso 24 — Comercial (Meu Robô)',
     shortLabel: 'Pulso 24 — Comercial (Meu Robô)',
     owner_name: 'Vinícius (CEO)',
-    owner_phone: '5553999990000',
+    owner_phone: '555384450964',
     niche: 'saas_b2b',
     plan: 'scale',
     whatsapp_instance_name: 'pulso24_oficial',
     whatsapp_connected: true,
     ai_name: 'Bia (Consultora Pulso 24)',
-    ai_system_prompt: `Você é a Bia, inteligência comercial oficial do Pulso 24. Seu objetivo é atender empresários que clicaram no site para testar a ferramenta ao vivo e vender o Pulso 24 para eles.
-
-REGRAS DE OURO DO SEU ATENDIMENTO:
-1. Seja extremamente natural, simpática, direta e consultiva (nunca pareça um robô engessado de opções numéricas).
-2. No primeiro contato, dê boas-vindas, diga que este próprio atendimento já está sendo feito 100% pelo Pulso 24 em menos de 10 segundos e pergunte o nome da pessoa e qual é o ramo da empresa dela (ex: Advocacia, Móveis Planejados, Clínica, Imobiliária, etc.).
-3. EFEITO UAU (Demonstração ao Vivo): Assim que o lead disser o ramo dele, convide-o a mandar um ÁUDIO curto contando como funciona o atendimento dele hoje ou uma FOTO/PDF, só para ele ver você ouvindo e respondendo em segundos na prática!
-4. ANCORAGEM DE VALOR: Mostre que enquanto um atendente CLT custa cerca de R$ 3.800/mês e só trabalha 8h por dia, o Pulso 24 trabalha 24h por dia (inclusive madrugada e domingos), faz follow-up automático para recuperar orçamentos sumidos e custa a partir de R$ 9,90/dia (Plano Start R$ 297 ou Plano Pro R$ 497 com condição especial de Cliente Fundador).
-5. FECHAMENTO: Qualifique o volume aproximado de mensagens que ele recebe por dia e proponha agendar uma chamada rápida de 10 minutos com o Vinícius (nosso especialista) para ativar o painel dele com isenção de taxa de setup.`,
+    ai_system_prompt: 'Você é a Bia, consultora comercial oficial do Pulso 24.',
     monthly_price: 0,
     badge: 'Oficial',
     color: 'emerald',
     isOwnBot: true,
-  },
-  {
-    id: '11111111-1111-1111-1111-111111111111',
-    name: 'Silva & Associados Advocacia',
-    shortLabel: 'Silva & Associados',
-    owner_name: 'Dr. Marcos Silva',
-    owner_phone: '5553999991111',
-    niche: 'advocacia',
-    plan: 'pro',
-    whatsapp_instance_name: 'silva_advocacia',
-    whatsapp_connected: true,
-    ai_name: 'Clara (Jurídico)',
-    ai_system_prompt: 'Você é a assistente virtual do escritório Silva & Associados. Faça a triagem empática do cliente, pergunte a área do direito, peça um resumo do caso (áudio ou texto) e agende a consulta com o advogado. Nunca dê parecer jurídico.',
-    monthly_price: 347,
-    badge: 'Cliente',
-    color: 'emerald',
-    isOwnBot: false,
-  },
-  {
-    id: '22222222-2222-2222-2222-222222222222',
-    name: 'Arte & Design Móveis Planejados',
-    shortLabel: 'Arte & Design',
-    owner_name: 'Roberto Mendes',
-    owner_phone: '5553999992222',
-    niche: 'moveis_planejados',
-    plan: 'pro',
-    whatsapp_instance_name: 'arte_moveis',
-    whatsapp_connected: false,
-    ai_name: 'Sofia (Projetos)',
-    ai_system_prompt: 'Você é a consultora de atendimento da Arte & Design Móveis Planejados. Descubra quais ambientes o cliente quer planejar, se já possui planta ou medidas e agende uma reunião com o projetista.',
-    monthly_price: 347,
-    badge: 'Cliente',
-    color: 'cyan',
-    isOwnBot: false,
   },
 ];
 
@@ -101,39 +60,31 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await getTenants();
       if (data && data.length > 0) {
-        setTenants((prev) => {
-          const updated = [...prev];
-          data.forEach((supaTenant) => {
-            const index = updated.findIndex((t) => t.id === supaTenant.id);
-            const isOwn = supaTenant.id === '00000000-0000-0000-0000-000000000000';
-            const mapped: DashboardTenant = {
-              id: supaTenant.id,
-              name: supaTenant.name,
-              shortLabel: isOwn
-                ? 'Pulso 24 — Comercial (Meu Robô)'
-                : supaTenant.name.replace(' Advocacia', '').replace(' Móveis Planejados', ''),
-              owner_name: supaTenant.owner_name,
-              owner_phone: supaTenant.owner_phone,
-              niche: supaTenant.niche,
-              plan: supaTenant.plan,
-              whatsapp_instance_name: supaTenant.whatsapp_instance_name || 'pulso24_oficial',
-              whatsapp_connected: supaTenant.whatsapp_connected,
-              ai_name: supaTenant.ai_name || (isOwn ? 'Bia (Consultora Pulso 24)' : 'Assistente IA'),
-              ai_system_prompt: supaTenant.ai_system_prompt || '',
-              monthly_price: Number(supaTenant.monthly_price) || 0,
-              badge: isOwn ? 'Oficial' : 'Cliente',
-              color: isOwn ? 'emerald' : supaTenant.niche === 'moveis_planejados' ? 'cyan' : 'emerald',
-              isOwnBot: isOwn,
-            };
-
-            if (index >= 0) {
-              updated[index] = { ...updated[index], ...mapped };
-            } else {
-              updated.push(mapped);
-            }
-          });
-          return updated;
+        const mappedList: DashboardTenant[] = data.map((supaTenant) => {
+          const isOwn = supaTenant.id === '00000000-0000-0000-0000-000000000000';
+          return {
+            id: supaTenant.id,
+            name: supaTenant.name,
+            shortLabel: isOwn
+              ? 'Pulso 24 — Comercial (Meu Robô)'
+              : supaTenant.name.replace(' Advocacia', '').replace(' Móveis Planejados', ''),
+            owner_name: supaTenant.owner_name,
+            owner_phone: supaTenant.owner_phone,
+            niche: supaTenant.niche,
+            plan: supaTenant.plan,
+            whatsapp_instance_name: supaTenant.whatsapp_instance_name || 'pulso24_oficial',
+            whatsapp_connected: supaTenant.whatsapp_connected,
+            ai_name: supaTenant.ai_name || (isOwn ? 'Bia (Consultora Pulso 24)' : 'Assistente IA'),
+            ai_system_prompt: supaTenant.ai_system_prompt || '',
+            monthly_price: Number(supaTenant.monthly_price) || 0,
+            badge: isOwn ? 'Oficial' : 'Cliente',
+            color: isOwn ? 'emerald' : supaTenant.niche === 'moveis_planejados' ? 'cyan' : 'emerald',
+            isOwnBot: isOwn,
+          };
         });
+
+        setTenants(mappedList);
+        setActiveTenantState((prev) => mappedList.find((m) => m.id === prev.id) || mappedList[0]);
       }
     } catch (err) {
       console.warn('Could not sync tenants with Supabase:', err);

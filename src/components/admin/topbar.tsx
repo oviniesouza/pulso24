@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Menu,
   Search,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminView } from '@/contexts/admin-view-context';
+import { getSaasExpenses } from '@/lib/supabase/service';
 
 export function AdminTopbar() {
   const {
@@ -24,6 +26,19 @@ export function AdminTopbar() {
     openRecargaModal,
     setActiveTab,
   } = useAdminView();
+
+  const [openAiBal, setOpenAiBal] = useState<number>(10.0);
+
+  useEffect(() => {
+    async function loadBal() {
+      const exps = await getSaasExpenses();
+      const openAiExp = exps.find((e) => e.category === 'openai');
+      if (openAiExp && openAiExp.balance_remaining !== null) {
+        setOpenAiBal(Number(openAiExp.balance_remaining));
+      }
+    }
+    loadBal();
+  }, []);
 
   const tabTitles: Record<string, string> = {
     onboarding: 'Fila de Onboarding & Ativação',
@@ -99,7 +114,7 @@ export function AdminTopbar() {
         >
           <BatteryCharging className="h-3.5 w-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
           <span className="text-gray-400 hidden sm:inline">OpenAI:</span>
-          <span className="text-cyan-400 font-bold">R$ 42,50</span>
+          <span className="text-cyan-400 font-bold font-mono">US$ {openAiBal.toFixed(2)}</span>
         </button>
 
         {/* Quick Action Button: + Novo Cliente */}
