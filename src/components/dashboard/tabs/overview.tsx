@@ -109,28 +109,41 @@ export function OverviewTab() {
   }));
 
   // 12 key hourly time intervals covering 24 hours
-  // Night shift hours: 19h to 08h (00h, 02h, 04h, 06h, 20h, 22h)
-  const hourlyData = [
-    { hour: '00h', count: 6, isNight: true, label: 'Madrugada' },
-    { hour: '02h', count: 4, isNight: true, label: 'Madrugada' },
-    { hour: '04h', count: 3, isNight: true, label: 'Madrugada' },
-    { hour: '06h', count: 7, isNight: true, label: 'Amanhecer' },
-    { hour: '08h', count: 14, isNight: false, label: 'Comercial' },
-    { hour: '10h', count: 28, isNight: false, label: 'Comercial' },
-    { hour: '12h', count: 22, isNight: false, label: 'Comercial' },
-    { hour: '14h', count: 34, isNight: false, label: 'Pico Comercial' },
-    { hour: '16h', count: 31, isNight: false, label: 'Comercial' },
-    { hour: '18h', count: 26, isNight: false, label: 'Fim de Expediente' },
-    { hour: '20h', count: 21, isNight: true, label: 'Plantão Noturno' },
-    { hour: '22h', count: 16, isNight: true, label: 'Plantão Noturno' },
+  const baseHours = [
+    { hour: '00h', h: 0, isNight: true, label: 'Madrugada' },
+    { hour: '02h', h: 2, isNight: true, label: 'Madrugada' },
+    { hour: '04h', h: 4, isNight: true, label: 'Madrugada' },
+    { hour: '06h', h: 6, isNight: true, label: 'Amanhecer' },
+    { hour: '08h', h: 8, isNight: false, label: 'Comercial' },
+    { hour: '10h', h: 10, isNight: false, label: 'Comercial' },
+    { hour: '12h', h: 12, isNight: false, label: 'Comercial' },
+    { hour: '14h', h: 14, isNight: false, label: 'Pico Comercial' },
+    { hour: '16h', h: 16, isNight: false, label: 'Comercial' },
+    { hour: '18h', h: 18, isNight: false, label: 'Fim de Expediente' },
+    { hour: '20h', h: 20, isNight: true, label: 'Plantão Noturno' },
+    { hour: '22h', h: 22, isNight: true, label: 'Plantão Noturno' },
   ];
 
-  const maxCount = Math.max(...hourlyData.map((d) => d.count));
+  const hourlyData = baseHours.map((slot) => {
+    const count = realLeads.filter((l) => {
+      const d = new Date(l.created_at || l.last_message_at);
+      const h = d.getHours();
+      return h >= slot.h && h < slot.h + 2;
+    }).length;
+    return {
+      hour: slot.hour,
+      count,
+      isNight: slot.isNight,
+      label: slot.label,
+    };
+  });
+
+  const totalLeadsToday = realLeads.length;
+  const maxCount = Math.max(1, ...hourlyData.map((d) => d.count));
   const nightLeadsTotal = hourlyData
     .filter((d) => d.isNight)
     .reduce((acc, curr) => acc + curr.count, 0);
-  const totalLeadsToday = hourlyData.reduce((acc, curr) => acc + curr.count, 0);
-  const nightPercentage = Math.round((nightLeadsTotal / totalLeadsToday) * 100);
+  const nightPercentage = totalLeadsToday > 0 ? Math.round((nightLeadsTotal / totalLeadsToday) * 100) : 0;
 
   const statusBadgeVariant = (stage: string): 'default' | 'secondary' | 'warning' | 'outline' => {
     switch (stage) {
@@ -233,14 +246,23 @@ export function OverviewTab() {
             <div className="p-3 bg-cyan-950/20 border border-cyan-500/30 rounded-sm flex items-start gap-2.5 text-xs">
               <Moon className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
               <div className="text-gray-300">
-                <span className="font-bold text-cyan-400">
-                  {nightPercentage}% dos seus atendimentos ({nightLeadsTotal} leads)
-                </span>{' '}
-                ocorreram no Plantão Noturno (19h às 08h), quando sua equipe humana estaria dormindo.{' '}
-                <strong className="text-emerald-400 font-semibold">
-                  Economia direta comprovada: ~R$ 4.200/mês
-                </strong>{' '}
-                sem custo de turno extra CLT.
+                {totalLeadsToday > 0 ? (
+                  <>
+                    <span className="font-bold text-cyan-400">
+                      {nightPercentage}% dos seus atendimentos ({nightLeadsTotal} leads)
+                    </span>{' '}
+                    ocorreram no Plantão Noturno (19h às 08h), quando sua equipe humana estaria dormindo.{' '}
+                    <strong className="text-emerald-400 font-semibold">
+                      Atendimento 24/7 ativo
+                    </strong>{' '}
+                    sem custo de turno extra CLT.
+                  </>
+                ) : (
+                  <>
+                    <span className="font-bold text-emerald-400">Plantão 24/7 Ativo:</span>{' '}
+                    A IA está conectada e monitorando o WhatsApp (+55 53 8445-0964). Cada lead que interagir será contabilizado e distribuído por horário aqui em tempo real.
+                  </>
+                )}
               </div>
             </div>
 

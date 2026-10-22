@@ -41,14 +41,17 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
     const data = await getLeads(currentTenantId);
     if (data && data.length > 0) {
       setLeads(data);
-      if (!selectedLead || !data.some((l) => l.id === selectedLead.id)) {
-        setSelectedLead(data[0]);
-      }
+      setSelectedLead((prev) => {
+        if (!prev || !data.some((l) => l.id === prev.id)) {
+          return data[0];
+        }
+        return prev;
+      });
     } else {
       setLeads([]);
       setSelectedLead(null);
     }
-  }, [currentTenantId, selectedLead]);
+  }, [currentTenantId]);
 
   // Sincronizar lead vindo do Overview ou busca externa
   useEffect(() => {
@@ -94,59 +97,20 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
     loadLeadsData();
   }, [loadLeadsData]);
 
-  // Carregar Mensagens do Lead Selecionado
+  // Carregar Mensagens do Lead Selecionado de forma estável (sem loop)
   useEffect(() => {
     async function loadChat() {
-      if (!selectedLead) return;
+      if (!selectedLead?.id) {
+        setMessages([]);
+        return;
+      }
       setLoadingMessages(true);
       const msgs = await getMessages(selectedLead.id);
-      if (msgs && msgs.length > 0) {
-        setMessages(msgs);
-      } else {
-        // Fallback do seu script SQL
-        setMessages([
-          {
-            id: 'm1',
-            tenant_id: currentTenantId,
-            lead_id: selectedLead.id,
-            sender_type: 'lead',
-            content: 'Boa noite, fui demitido mês passado e a empresa não pagou minhas horas extras. Posso mandar áudio explicando?',
-            media_type: 'text',
-            created_at: new Date(Date.now() - 3600000).toISOString(),
-          },
-          {
-            id: 'm2',
-            tenant_id: currentTenantId,
-            lead_id: selectedLead.id,
-            sender_type: 'ai',
-            content: 'Olá, Carlos! Boa noite. Sou a Clara, assistente do escritório Silva & Associados. Pode enviar o áudio sim, fique à vontade! Vou ouvir tudo com atenção para já adiantar sua triagem com o Dr. Marcos.',
-            media_type: 'text',
-            created_at: new Date(Date.now() - 3500000).toISOString(),
-          },
-          {
-            id: 'm3',
-            tenant_id: currentTenantId,
-            lead_id: selectedLead.id,
-            sender_type: 'lead',
-            content: '[Áudio transcrito via Whisper (01:14): Trabalhei 3 anos na obra, fazia 2 horas extras todo dia e nunca veio no holerite...]',
-            media_type: 'audio',
-            created_at: new Date(Date.now() - 3400000).toISOString(),
-          },
-          {
-            id: 'm4',
-            tenant_id: currentTenantId,
-            lead_id: selectedLead.id,
-            sender_type: 'ai',
-            content: 'Compreendi perfeitamente, Carlos. Já deixei seu resumo trabalhista pronto para o Dr. Marcos. Para agendarmos sua reunião de análise, você prefere quinta-feira às 14h ou às 16h30?',
-            media_type: 'text',
-            created_at: new Date(Date.now() - 3300000).toISOString(),
-          },
-        ]);
-      }
+      setMessages(msgs || []);
       setLoadingMessages(false);
     }
     loadChat();
-  }, [selectedLead, currentTenantId]);
+  }, [selectedLead?.id]);
 
   // Alternar IA Ativa/Pausada
   const toggleAi = async () => {

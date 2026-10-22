@@ -17,61 +17,7 @@ export function ClientsTab() {
 
   const loadTenants = useCallback(async () => {
     const data = await getTenants();
-    if (data && data.length > 0) {
-      setTenants(data);
-    } else {
-      // Fallback
-      setTenants([
-        {
-          id: '11111111-1111-1111-1111-111111111111',
-          name: 'Silva & Associados Advocacia',
-          owner_name: 'Dr. Marcos Silva',
-          owner_phone: '5553999991111',
-          niche: 'advocacia',
-          plan: 'pro',
-          subscription_status: 'active',
-          onboarding_status: 'live',
-          onboarding_notes: null,
-          billing_provider: 'sicredi',
-          monthly_price: 347.0,
-          setup_fee: 0.0,
-          billing_due_day: 10,
-          ai_cost_current_month: 6.8,
-          leads_count_current_month: 42,
-          referred_by_tenant_id: null,
-          whatsapp_instance_name: 'silva_advocacia',
-          whatsapp_connected: true,
-          ai_name: 'Clara (Jurídico)',
-          ai_system_prompt: 'Assistente Silva & Associados',
-          notification_phone: null,
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: '22222222-2222-2222-2222-222222222222',
-          name: 'Arte & Design Móveis Planejados',
-          owner_name: 'Roberto Mendes',
-          owner_phone: '5553999992222',
-          niche: 'moveis_planejados',
-          plan: 'pro',
-          subscription_status: 'active',
-          onboarding_status: 'configuring',
-          onboarding_notes: null,
-          billing_provider: 'sicredi',
-          monthly_price: 347.0,
-          setup_fee: 0.0,
-          billing_due_day: 10,
-          ai_cost_current_month: 3.2,
-          leads_count_current_month: 18,
-          referred_by_tenant_id: null,
-          whatsapp_instance_name: 'arte_moveis',
-          whatsapp_connected: false,
-          ai_name: 'Sofia (Projetos)',
-          ai_system_prompt: 'Consultora de Móveis',
-          notification_phone: null,
-          created_at: new Date().toISOString(),
-        },
-      ]);
-    }
+    setTenants(data || []);
   }, []);
 
   useEffect(() => {
@@ -210,26 +156,41 @@ export function ClientsTab() {
       <Card>
         <CardContent className="p-0">
           <div className="divide-y divide-[#1F2937]">
-            {filtered.map((tenant) => {
-              const isFounder = Number(tenant.monthly_price) === 347.0;
-              return (
-                <div
-                  key={tenant.id}
-                  className="flex flex-col md:flex-row md:items-center justify-between p-4 hover:bg-[#1F2937]/30 transition-colors gap-4"
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-bold text-white">{tenant.name}</span>
-                      {isFounder && (
-                        <Badge variant="secondary" className="gap-1 text-[10px] bg-amber-500/10 text-amber-400 border-amber-500/30">
-                          <Star className="h-2.5 w-2.5" />
-                          Cliente Fundador (R$ 347)
+            {filtered.length === 0 ? (
+              <div className="p-10 text-center text-gray-400 text-sm">
+                <Users className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                <p className="font-semibold text-white mb-1">Nenhum cliente encontrado</p>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                  Clique no botão &quot;+ Cadastrar Novo Cliente&quot; acima para registrar um novo assinante ou aguarde novos cadastros.
+                </p>
+              </div>
+            ) : (
+              filtered.map((tenant) => {
+                const isInternalRobot = tenant.id === '00000000-0000-0000-0000-000000000000';
+                const isFounder = Number(tenant.monthly_price) === 347.0;
+                return (
+                  <div
+                    key={tenant.id}
+                    className="flex flex-col md:flex-row md:items-center justify-between p-4 hover:bg-[#1F2937]/30 transition-colors gap-4"
+                  >
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-bold text-white">{tenant.name}</span>
+                        {isInternalRobot && (
+                          <Badge variant="outline" className="gap-1 text-[10px] bg-cyan-500/10 text-cyan-400 border-cyan-500/30">
+                            Robô Oficial Pulso 24
+                          </Badge>
+                        )}
+                        {isFounder && (
+                          <Badge variant="secondary" className="gap-1 text-[10px] bg-amber-500/10 text-amber-400 border-amber-500/30">
+                            <Star className="h-2.5 w-2.5" />
+                            Cliente Fundador (R$ 347)
+                          </Badge>
+                        )}
+                        <Badge variant={tenant.onboarding_status === 'live' ? 'default' : 'warning'}>
+                          {tenant.onboarding_status === 'live' ? 'No Ar' : 'Em Setup'}
                         </Badge>
-                      )}
-                      <Badge variant={tenant.onboarding_status === 'live' ? 'default' : 'warning'}>
-                        {tenant.onboarding_status === 'live' ? 'No Ar' : 'Em Setup'}
-                      </Badge>
-                    </div>
+                      </div>
 
                     <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
                       <span className="text-gray-300 font-medium capitalize">
@@ -289,7 +250,7 @@ export function ClientsTab() {
                   </div>
                 </div>
               );
-            })}
+            }))}
           </div>
         </CardContent>
       </Card>

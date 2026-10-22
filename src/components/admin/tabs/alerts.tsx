@@ -54,7 +54,7 @@ const TRIGGERS: AlertTrigger[] = [
 ];
 
 export function AlertsTab() {
-  const [ceoPhone, setCeoPhone] = useState('+55 53 99999-0000');
+  const [ceoPhone, setCeoPhone] = useState('+55 53 8445-0964');
   const [settings, setSettings] = useState<Partial<SaasAdminSettings>>({
     alert_on_new_sale: true,
     alert_on_new_onboarding: true,

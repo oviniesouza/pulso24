@@ -39,22 +39,23 @@ export function FinancialTab() {
     loadFinancialData();
   }, [loadFinancialData]);
 
-  // Cálculos Financeiros Dinâmicos do Supabase
-  const grossMRR = tenants.reduce((acc, t) => acc + Number(t.monthly_price || 0), 0) || 694.0;
-  const totalExpenses = expenses.reduce((acc, e) => acc + Number(e.amount || 0), 0) || 180.0;
+  // Cálculos Financeiros Dinâmicos do Supabase (100% dados reais)
+  const clientTenants = tenants.filter((t) => t.id !== '00000000-0000-0000-0000-000000000000');
+  const grossMRR = clientTenants.reduce((acc, t) => acc + Number(t.monthly_price || 0), 0);
+  const totalExpenses = expenses.reduce((acc, e) => acc + Number(e.amount || 0), 0);
   const netProfit = grossMRR - totalExpenses;
-  const netMargin = Math.round((netProfit / grossMRR) * 100);
+  const netMargin = grossMRR > 0 ? Math.round((netProfit / grossMRR) * 100) : 0;
 
-  // Faturas dos Tenants
-  const bills: BillingRecord[] = tenants.map((t) => ({
+  // Faturas dos Clientes Pagantes
+  const bills: BillingRecord[] = clientTenants.map((t) => ({
     id: `FAT-${t.id.substring(0, 8)}`,
     client: t.name,
     plan: `${t.plan.toUpperCase()} (Fundador)`,
     gateway: t.billing_provider === 'sicredi' ? 'Sicredi (Pix/Boleto Híbrido)' : 'Stripe (Cartão)',
-    amount: Number(t.monthly_price || 347),
+    amount: Number(t.monthly_price || 0),
     dueDate: `2026-11-${String(t.billing_due_day || 10).padStart(2, '0')}`,
     status: t.subscription_status === 'active' ? 'paid' : 'pending',
-    phone: t.owner_phone || '5553999990000',
+    phone: t.owner_phone || '',
   }));
 
   const handleDispararCobranca = (bill: BillingRecord) => {
@@ -89,7 +90,7 @@ export function FinancialTab() {
           </div>
           <p className="text-3xl font-black text-white mt-2">{formatCurrency(grossMRR)}</p>
           <div className="flex items-center justify-between text-xs text-gray-400 mt-2 border-t border-[#1F2937] pt-2">
-            <span>{tenants.length} assinaturas ativas</span>
+            <span>{clientTenants.length} assinaturas ativas</span>
             <span className="text-emerald-400 font-bold font-mono">100% Sicredi</span>
           </div>
         </div>
@@ -133,45 +134,51 @@ export function FinancialTab() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y divide-[#1F2937]">
-            {bills.map((bill) => (
-              <div
-                key={bill.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-[#1F2937]/30 transition-colors gap-3"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white">{bill.client}</span>
-                    <Badge variant={bill.status === 'paid' ? 'default' : 'warning'}>
-                      {bill.status === 'paid' ? 'Em Dia' : 'Pendente'}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
-                    <span className="text-emerald-400 font-medium">{bill.plan}</span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1">
-                      <QrCode className="h-3 w-3 text-emerald-400" />
-                      {bill.gateway}
-                    </span>
-                    <span>·</span>
-                    <span>Vencimento dia {bill.dueDate.split('-')[2]}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 justify-between sm:justify-end">
-                  <span className="text-base font-black text-white">{formatCurrency(bill.amount)}</span>
-
-                  <Button
-                    variant="whatsapp"
-                    size="sm"
-                    onClick={() => handleDispararCobranca(bill)}
-                    disabled={sendingId === bill.id}
-                  >
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    {sendingId === bill.id ? 'Abrindo WhatsApp...' : 'Cobrança WhatsApp'}
-                  </Button>
-                </div>
+            {bills.length === 0 ? (
+              <div className="p-8 text-center text-gray-500 text-xs">
+                Nenhuma fatura de cliente emitida ainda. Novos assinantes aparecerão aqui com disparo de cobrança via WhatsApp.
               </div>
-            ))}
+            ) : (
+              bills.map((bill) => (
+                <div
+                  key={bill.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-[#1F2937]/30 transition-colors gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-white">{bill.client}</span>
+                      <Badge variant={bill.status === 'paid' ? 'default' : 'warning'}>
+                        {bill.status === 'paid' ? 'Em Dia' : 'Pendente'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
+                      <span className="text-emerald-400 font-medium">{bill.plan}</span>
+                      <span>·</span>
+                      <span className="flex items-center gap-1">
+                        <QrCode className="h-3 w-3 text-emerald-400" />
+                        {bill.gateway}
+                      </span>
+                      <span>·</span>
+                      <span>Vencimento dia {bill.dueDate.split('-')[2]}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 justify-between sm:justify-end">
+                    <span className="text-base font-black text-white">{formatCurrency(bill.amount)}</span>
+
+                    <Button
+                      variant="whatsapp"
+                      size="sm"
+                      onClick={() => handleDispararCobranca(bill)}
+                      disabled={sendingId === bill.id}
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      {sendingId === bill.id ? 'Abrindo WhatsApp...' : 'Cobrança WhatsApp'}
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -28,6 +28,7 @@ import { Logo } from '@/components/logo';
 import { Badge } from '@/components/ui/badge';
 import { useTenant } from '@/contexts/tenant-context';
 import { useDashboardView, type DashboardTab, type CrmFilter } from '@/contexts/dashboard-view-context';
+import { getLeads, type Lead } from '@/lib/supabase/service';
 
 export function Sidebar() {
   const router = useRouter();
@@ -50,6 +51,20 @@ export function Sidebar() {
   });
 
   const [tenantDropdownOpen, setTenantDropdownOpen] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      const data = await getLeads(activeTenant.id);
+      setLeads(data || []);
+    }
+    load();
+  }, [activeTenant.id]);
+
+  const totalLeads = leads.length;
+  const hotCount = leads.filter((l) => l.stage === 'qualificado').length;
+  const pausedCount = leads.filter((l) => !l.ai_active).length;
+  const scheduledCount = leads.filter((l) => l.stage === 'agendado').length;
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -199,14 +214,14 @@ export function Sidebar() {
                   className="w-full flex items-center justify-between text-[11px] px-2.5 py-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-sm transition-all duration-150 group"
                 >
                   <span className="group-hover:text-white transition-colors">• Métricas de Hoje</span>
-                  <span className="text-[10px] text-emerald-400 font-semibold group-hover:brightness-125 transition-all">247 leads</span>
+                  <span className="text-[10px] text-emerald-400 font-semibold group-hover:brightness-125 transition-all">{totalLeads} {totalLeads === 1 ? 'lead' : 'leads'}</span>
                 </button>
                 <button
                   onClick={() => handleSelectTab('overview')}
                   className="w-full flex items-center justify-between text-[11px] px-2.5 py-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-sm transition-all duration-150 group"
                 >
                   <span className="group-hover:text-white transition-colors">• Desempenho da IA</span>
-                  <span className="text-[10px] text-cyan-400 font-semibold group-hover:brightness-125 transition-all">7.2s avg</span>
+                  <span className="text-[10px] text-cyan-400 font-semibold group-hover:brightness-125 transition-all">&lt; 8s avg</span>
                 </button>
               </div>
             )}
@@ -241,7 +256,7 @@ export function Sidebar() {
                 >
                   <span>Kanban & Chat ao Vivo</span>
                   <Badge variant="outline" className="text-[10px] py-0 px-1 border-white/20">
-                    6
+                    {totalLeads}
                   </Badge>
                 </button>
                 <button
@@ -256,7 +271,7 @@ export function Sidebar() {
                     <Flame className="h-3.5 w-3.5 text-amber-400" />
                     <span>🔥 Leads Quentes</span>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-400">3</span>
+                  <span className="text-[10px] font-bold text-emerald-400">{hotCount}</span>
                 </button>
                 <button
                   onClick={() => handleSelectCrmFilter('paused')}
@@ -270,7 +285,7 @@ export function Sidebar() {
                     <Hand className="h-3.5 w-3.5 text-amber-400" />
                     <span>✋ Aguardando Humano</span>
                   </div>
-                  <span className="text-[10px] text-gray-500">1</span>
+                  <span className="text-[10px] text-gray-500">{pausedCount}</span>
                 </button>
                 <button
                   onClick={() => handleSelectCrmFilter('scheduled')}
@@ -284,7 +299,7 @@ export function Sidebar() {
                     <Calendar className="h-3.5 w-3.5 text-cyan-400" />
                     <span>📅 Reuniões Agendadas</span>
                   </div>
-                  <span className="text-[10px] text-cyan-400 font-bold">2</span>
+                  <span className="text-[10px] text-cyan-400 font-bold">{scheduledCount}</span>
                 </button>
               </div>
             )}
@@ -398,7 +413,7 @@ export function Sidebar() {
             </div>
             <p className="text-[10px] text-gray-500">
               Taxa de Resposta:{' '}
-              <span className="text-gray-300 font-medium">8.4s</span>
+              <span className="text-gray-300 font-medium">&lt; 8s</span>
             </p>
           </div>
 

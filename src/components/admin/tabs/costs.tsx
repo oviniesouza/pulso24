@@ -16,58 +16,16 @@ export function CostsTab() {
 
   const loadExpenses = useCallback(async () => {
     const data = await getSaasExpenses();
-    if (data && data.length > 0) {
-      setExpenses(data);
-    } else {
-      // Fallback baseado nos registros inseridos no script do usuário
-      setExpenses([
-        {
-          id: '1',
-          title: 'Créditos API OpenAI (Tokens)',
-          category: 'openai',
-          amount: 55.0,
-          balance_remaining: 42.5,
-          alert_threshold: 15.0,
-          due_day: null,
-          status: 'ok',
-          whatsapp_alert_sent: false,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          title: 'Servidor VPS (n8n + Evolution API)',
-          category: 'vps',
-          amount: 85.0,
-          balance_remaining: null,
-          alert_threshold: null,
-          due_day: 15,
-          status: 'ok',
-          whatsapp_alert_sent: false,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: '3',
-          title: 'Domínio Oficial Pulso24.com.br',
-          category: 'domain',
-          amount: 40.0,
-          balance_remaining: null,
-          alert_threshold: null,
-          due_day: 20,
-          status: 'paid',
-          whatsapp_alert_sent: false,
-          updated_at: new Date().toISOString(),
-        },
-      ]);
-    }
+    setExpenses(data || []);
   }, []);
 
   useEffect(() => {
     loadExpenses();
   }, [loadExpenses]);
 
-  const openai = expenses.find((e) => e.category === 'openai') || expenses[0];
+  const openai = expenses.find((e) => e.category === 'openai');
   const balance = Number(openai?.balance_remaining || 0);
-  const threshold = Number(openai?.alert_threshold || 15);
+  const threshold = Number(openai?.alert_threshold || 3);
   const isLowBalance = balance < threshold;
   const balancePercent = Math.min(100, Math.round((balance / 100) * 100));
 
