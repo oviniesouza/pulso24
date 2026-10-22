@@ -187,6 +187,33 @@
         1560,
         280
       ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.pulso24.com.br/api/leads/record",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tenant_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"phone\": {{ JSON.stringify($('Extrair Mensagem & Tipo').first().json.phone) }},\n  \"name\": {{ JSON.stringify($('Extrair Mensagem & Tipo').first().json.pushName) }},\n  \"client_message\": {{ JSON.stringify($('Extrair Mensagem & Tipo').first().json.text) }},\n  \"ai_message\": {{ JSON.stringify($json.choices[0].message.content) }},\n  \"media_type\": {{ JSON.stringify($('Extrair Mensagem & Tipo').first().json.isAudio ? 'audio' : 'text') }}\n}",
+        "options": {}
+      },
+      "id": "save-dashboard-lead",
+      "name": "Salvar no Painel Pulso 24",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        460
+      ]
     }
   ],
   "connections": {
@@ -257,6 +284,11 @@
         [
           {
             "node": "Enviar Resposta WhatsApp",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Salvar no Painel Pulso 24",
             "type": "main",
             "index": 0
           }
