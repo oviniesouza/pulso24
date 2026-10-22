@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/constants';
 
 export function RoiCalculator() {
   return (
@@ -147,7 +148,7 @@ export function RoiCalculator() {
                 className="w-full text-xs sm:text-sm font-bold rounded-lg group h-12"
                 onClick={() =>
                   window.open(
-                    'https://wa.me/5511999999999?text=Quero+contratar+o+Pulso+24+com+economia+imediata',
+                    getWhatsAppUrl('Quero contratar o Pulso 24 com economia imediata'),
                     '_blank'
                   )
                 }

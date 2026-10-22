@@ -1,6 +1,7 @@
 import { Mail } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/constants';
 
 function InstagramIcon({ className = 'h-4 w-4' }: { className?: string }) {
   return (
@@ -35,7 +36,7 @@ export function Footer() {
             </p>
             <div className="flex flex-wrap gap-3 sm:gap-4 mt-4 sm:mt-5">
               <a
-                href="https://wa.me/5511999999999?text=Olá!+Quero+conhecer+o+Pulso+24"
+                href={getWhatsAppUrl('Olá! Quero conhecer o Pulso 24')}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-1.5 text-xs text-[#25D366] hover:text-white transition-colors font-medium"

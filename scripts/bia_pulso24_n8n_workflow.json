@@ -1,0 +1,271 @@
+{
+  "name": "Bia - Pulso 24 (Atendente Comercial Oficial)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pulso24-comercial",
+        "options": {}
+      },
+      "id": "webhook-evolution",
+      "name": "Webhook Evolution API",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "pulso24-comercial"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "filter-self",
+              "leftValue": "={{ $json.body?.data?.key?.fromMe }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "filter-group",
+              "leftValue": "={{ $json.body?.data?.key?.remoteJid }}",
+              "rightValue": "@g.us",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "filter-valid-msg",
+      "name": "Ignorar Bot & Grupos",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.body?.data || {};\nconst message = data.message || {};\nconst remoteJid = data.key?.remoteJid || '';\nconst pushName = data.pushName || 'Cliente';\nconst phone = remoteJid.split('@')[0];\n\nlet text = message.conversation || message.extendedTextMessage?.text || '';\nlet isAudio = false;\nlet audioBase64 = null;\n\nif (message.audioMessage) {\n  isAudio = true;\n  audioBase64 = data.base64 || message.base64 || null;\n}\n\nreturn {\n  remoteJid,\n  phone,\n  pushName,\n  text,\n  isAudio,\n  audioBase64,\n  messageId: data.key?.id\n};"
+      },
+      "id": "extract-data",
+      "name": "Extrair Mensagem & Tipo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-audio",
+              "leftValue": "={{ $json.isAudio }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "check-if-audio",
+      "name": "É Áudio?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        860,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer SUA_OPENAI_API_KEY_AQUI"
+            }
+          ]
+        },
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "id": "whisper-stt",
+      "name": "Whisper Transcrição (Áudio)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer SUA_OPENAI_API_KEY_AQUI"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Você é a Bia, consultora comercial oficial do Pulso 24. Seu objetivo é acolher empresários que vieram conhecer a plataforma e vender o Pulso 24.\\n\\nREGRAS:\\n1. Seja simpática, objetiva, humana e acolhedora. Nunca pareça um robô com menus numéricos.\\n2. Destaque que este próprio atendimento está sendo realizado em menos de 8 segundos 100% pela IA do Pulso 24.\\n3. Pergunte o nome da pessoa e qual o segmento do negócio dela (ex: Advocacia, Móveis Planejados, Clínica, Imobiliária, etc.).\\n4. Se o cliente mandar áudio, responda comentando o que ele falou no áudio para gerar efeito UAU.\\n5. Ancore valor: um atendente CLT custa R$ 3.800/mês e atende só 8h/dia sem finais de semana. O Pulso 24 atende 24h/dia, faz follow-up automático de orçamentos e custa a partir de R$ 9,90/dia (Start R$ 297 ou Pro R$ 497).\\n6. Chame para agendar 10 minutos de demonstração com o Vinícius (nosso especialista) com setup gratuito.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.text || 'Olá, quero conhecer o Pulso 24') }}\n    }\n  ],\n  \"temperature\": 0.7,\n  \"max_tokens\": 350\n}",
+        "options": {}
+      },
+      "id": "openai-gpt4o",
+      "name": "OpenAI (Bia IA)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://pulso24-evolution-api.xdm0dg.easypanel.host/message/sendText/pulso24_oficial",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "429683C4C977415CAAFCCE10F7D57E11"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": {{ JSON.stringify($('Extrair Mensagem & Tipo').first().json.remoteJid) }},\n  \"text\": {{ JSON.stringify($json.choices[0].message.content) }}\n}",
+        "options": {}
+      },
+      "id": "evolution-send-msg",
+      "name": "Enviar Resposta WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        280
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Evolution API": {
+      "main": [
+        [
+          {
+            "node": "Ignorar Bot & Grupos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ignorar Bot & Grupos": {
+      "main": [
+        [
+          {
+            "node": "Extrair Mensagem & Tipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Mensagem & Tipo": {
+      "main": [
+        [
+          {
+            "node": "É Áudio?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É Áudio?": {
+      "main": [
+        [
+          {
+            "node": "Whisper Transcrição (Áudio)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI (Bia IA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whisper Transcrição (Áudio)": {
+      "main": [
+        [
+          {
+            "node": "OpenAI (Bia IA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI (Bia IA)": {
+      "main": [
+        [
+          {
+            "node": "Enviar Resposta WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

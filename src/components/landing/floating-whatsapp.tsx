@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/constants';
 
-const WHATSAPP_URL = 'https://wa.me/5511999999999?text=Olá!+Quero+testar+a+IA+do+Pulso+24+ao+vivo+no+WhatsApp';
+const WHATSAPP_URL = getWhatsAppUrl('Olá! Quero testar a IA do Pulso 24 ao vivo no WhatsApp');
 
 export function FloatingWhatsApp() {
   return (

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { Button } from '@/components/ui/button';
+import { getWhatsAppUrl } from '@/lib/constants';
 
 const DEMOS = {
   advocacia: {
@@ -368,7 +369,7 @@ export function InteractiveDemo() {
                   className="w-full text-xs sm:text-sm font-semibold rounded-lg h-11"
                   onClick={() =>
                     window.open(
-                      'https://wa.me/5511999999999?text=Quero+ver+a+demonstração+ao+vivo+da+IA+no+WhatsApp',
+                      getWhatsAppUrl('Quero ver a demonstração ao vivo da IA no WhatsApp'),
                       '_blank'
                     )
                   }

@@ -6,6 +6,7 @@ import { Menu, X } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
@@ -72,7 +73,7 @@ export function Navbar() {
           <Button
             variant="whatsapp"
             size="sm"
-            onClick={() => window.open('https://wa.me/5511999999999?text=Quero+conhecer+o+Pulso+24', '_blank')}
+            onClick={() => window.open(getWhatsAppUrl('Quero conhecer o Pulso 24'), '_blank')}
           >
             <WhatsAppIcon size={16} />
             Falar com IA
@@ -122,7 +123,7 @@ export function Navbar() {
                   className="w-full h-11 rounded-lg text-xs font-bold"
                   onClick={() => {
                     setMenuOpen(false);
-                    window.open('https://wa.me/5511999999999?text=Quero+conhecer+o+Pulso+24', '_blank');
+                    window.open(getWhatsAppUrl('Quero conhecer o Pulso 24'), '_blank');
                   }}
                 >
                   <WhatsAppIcon size={16} />

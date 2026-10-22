@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Mic, Brain, QrCode, Smartphone, ArrowRight, ShieldCheck, Zap, CalendarCheck, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/constants';
 
 const STEPS = [
   {
@@ -162,7 +163,7 @@ export function HowItWorks() {
             className="rounded-lg shadow-[0_0_30px_rgba(37,211,102,0.25)] group px-8 h-14"
             onClick={() =>
               window.open(
-                'https://wa.me/5511999999999?text=Quero+iniciar+o+onboarding+do+Pulso+24+agora',
+                getWhatsAppUrl('Quero iniciar o onboarding do Pulso 24 agora'),
                 '_blank'
               )
             }

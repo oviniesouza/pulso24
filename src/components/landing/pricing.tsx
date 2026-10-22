@@ -5,9 +5,10 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, Zap, Star, Rocket, X, CreditCard, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/constants';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
-const WHATSAPP_URL = 'https://wa.me/5511999999999?text=Quero+contratar+o+Pulso+24';
+const WHATSAPP_URL = getWhatsAppUrl('Quero contratar o Pulso 24');
 
 const plans = [
   {

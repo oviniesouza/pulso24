@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { Scale, Sofa, Store, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
+import { getWhatsAppUrl } from '@/lib/constants';
 
-const WHATSAPP_URL = 'https://wa.me/5511999999999?text=Olá!+Quero+ver+o+Pulso+24+em+ação';
+const WHATSAPP_URL = getWhatsAppUrl('Olá! Quero ver o Pulso 24 em ação');
 
 const segments = [
   {
