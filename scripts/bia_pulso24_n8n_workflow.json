@@ -59,7 +59,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $input.first().json.body?.data || {};\nconst message = data.message || {};\nconst remoteJid = data.key?.remoteJid || '';\nconst pushName = data.pushName || 'Cliente';\nconst phone = remoteJid.split('@')[0];\n\nlet text = message.conversation || message.extendedTextMessage?.text || '';\nlet isAudio = false;\nlet audioBase64 = null;\n\nif (message.audioMessage) {\n  isAudio = true;\n  audioBase64 = data.base64 || message.base64 || null;\n}\n\nreturn {\n  remoteJid,\n  phone,\n  pushName,\n  text,\n  isAudio,\n  audioBase64,\n  messageId: data.key?.id\n};"
+        "jsCode": "const data = $input.first().json.body?.data || {};\nconst message = data.message || {};\nconst remoteJid = data.key?.remoteJid || '';\nconst pushName = data.pushName || 'Cliente';\nconst phone = remoteJid.split('@')[0];\n\nlet text = message.conversation || message.extendedTextMessage?.text || '';\nlet isAudio = false;\nlet audioBase64 = null;\n\nif (message.audioMessage) {\n  isAudio = true;\n  audioBase64 = data.base64 || data.message?.base64 || message.audioMessage?.base64 || message.base64 || null;\n}\n\nreturn {\n  remoteJid,\n  phone,\n  pushName,\n  text,\n  isAudio,\n  audioBase64,\n  messageId: data.key?.id\n};"
       },
       "id": "extract-data",
       "name": "Extrair Mensagem & Tipo",
@@ -103,18 +103,30 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "url": "https://www.pulso24.com.br/api/chat/transcribe",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "Authorization",
-              "value": "Bearer SUA_OPENAI_API_KEY_AQUI"
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
-        "sendBinaryData": true,
-        "binaryPropertyName": "data",
+        "sendBody": true,
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "audioBase64",
+              "value": "={{ $('Extrair Mensagem & Tipo').first().json.audioBase64 }}"
+            },
+            {
+              "name": "apiKey",
+              "value": "SUA_OPENAI_API_KEY_AQUI"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "whisper-stt",
