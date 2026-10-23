@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, MessageCircle, Download, CheckCircle2, QrCode, CreditCard, Cloud } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, TrendingDown, DollarSign, MessageCircle, CheckCircle2, QrCode, Cloud } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { getTenants, getSaasExpenses, type Tenant, type SaasExpense } from '@/lib/supabase/service';
+import { useAdminView } from '@/contexts/admin-view-context';
 
 interface BillingRecord {
   id: string;
@@ -20,31 +20,9 @@ interface BillingRecord {
 }
 
 export function FinancialTab() {
-  const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [expenses, setExpenses] = useState<SaasExpense[]>([]);
+  const { clientTenants, mrr, totalExpenses, netProfit, margin } = useAdminView();
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-
-  const loadFinancialData = useCallback(async () => {
-    const [tenantsData, expensesData] = await Promise.all([
-      getTenants(),
-      getSaasExpenses(),
-    ]);
-
-    if (tenantsData && tenantsData.length > 0) setTenants(tenantsData);
-    if (expensesData && expensesData.length > 0) setExpenses(expensesData);
-  }, []);
-
-  useEffect(() => {
-    loadFinancialData();
-  }, [loadFinancialData]);
-
-  // Cálculos Financeiros Dinâmicos do Supabase (100% dados reais)
-  const clientTenants = tenants.filter((t) => t.id !== '00000000-0000-0000-0000-000000000000');
-  const grossMRR = clientTenants.reduce((acc, t) => acc + Number(t.monthly_price || 0), 0);
-  const totalExpenses = expenses.reduce((acc, e) => acc + Number(e.amount || 0), 0);
-  const netProfit = grossMRR - totalExpenses;
-  const netMargin = grossMRR > 0 ? Math.round((netProfit / grossMRR) * 100) : 0;
 
   // Faturas dos Clientes Pagantes
   const bills: BillingRecord[] = clientTenants.map((t) => ({
@@ -88,7 +66,7 @@ export function FinancialTab() {
             <span className="text-xs text-emerald-400 uppercase font-bold tracking-wider">MRR da Base</span>
             <TrendingUp className="h-5 w-5 text-emerald-400" />
           </div>
-          <p className="text-3xl font-black text-white mt-2">{formatCurrency(grossMRR)}</p>
+          <p className="text-3xl font-black text-white mt-2">{formatCurrency(mrr)}</p>
           <div className="flex items-center justify-between text-xs text-gray-400 mt-2 border-t border-[#1F2937] pt-2">
             <span>{clientTenants.length} assinaturas ativas</span>
             <span className="text-emerald-400 font-bold font-mono">100% Sicredi</span>
@@ -111,10 +89,12 @@ export function FinancialTab() {
             <span className="text-xs text-cyan-400 uppercase font-bold tracking-wider">Lucro Líquido Real</span>
             <DollarSign className="h-5 w-5 text-cyan-400" />
           </div>
-          <p className="text-3xl font-black text-emerald-400 mt-2">{formatCurrency(netProfit)}</p>
+          <p className={`text-3xl font-black mt-2 ${netProfit >= 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+            {formatCurrency(netProfit)}
+          </p>
           <div className="flex items-center justify-between text-xs text-gray-400 mt-2 border-t border-[#1F2937] pt-2">
             <span>Margem Líquida Real:</span>
-            <span className="text-cyan-400 font-bold font-mono">{netMargin}%</span>
+            <span className="text-cyan-400 font-bold font-mono">{margin}%</span>
           </div>
         </div>
       </div>

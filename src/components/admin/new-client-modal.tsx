@@ -7,7 +7,7 @@ import { useAdminView } from '@/contexts/admin-view-context';
 import { createTenant } from '@/lib/supabase/service';
 
 export function NewClientModal() {
-  const { isNewClientModalOpen, setIsNewClientModalOpen, setActiveTab } = useAdminView();
+  const { isNewClientModalOpen, setIsNewClientModalOpen, setActiveTab, refreshData } = useAdminView();
 
   const [name, setName] = useState('');
   const [ownerName, setOwnerName] = useState('');
@@ -41,20 +41,20 @@ export function NewClientModal() {
         onboarding_status: 'waiting',
       });
       setSuccess(true);
+      await refreshData();
       setTimeout(() => {
         setSuccess(false);
         setIsNewClientModalOpen(false);
         setActiveTab('clients');
-        window.location.reload();
-      }, 900);
+      }, 700);
     } catch {
-      // fallback success feedback
       setSuccess(true);
+      await refreshData();
       setTimeout(() => {
         setSuccess(false);
         setIsNewClientModalOpen(false);
         setActiveTab('clients');
-      }, 900);
+      }, 700);
     } finally {
       setSubmitting(false);
     }

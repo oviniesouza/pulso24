@@ -1,33 +1,32 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Eye, Star, Users, TrendingUp, Search, Phone, Wifi, WifiOff, Cloud, Filter, X, UserPlus } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Eye, Star, Users, TrendingUp, Search, Phone, Wifi, WifiOff, Filter, X, UserPlus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
-import { getTenants, type Tenant } from '@/lib/supabase/service';
 import { useAdminView } from '@/contexts/admin-view-context';
 
 export function ClientsTab() {
-  const { clientsFilter, setClientsFilter, searchQuery, setSearchQuery, openNewClientModal } = useAdminView();
-  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const {
+    clientTenants,
+    totalLeadsCount,
+    mrr,
+    clientCounts,
+    clientsFilter,
+    setClientsFilter,
+    searchQuery,
+    setSearchQuery,
+    openNewClientModal,
+  } = useAdminView();
+
   const [search, setSearch] = useState('');
-
-  const loadTenants = useCallback(async () => {
-    const data = await getTenants();
-    setTenants(data || []);
-  }, []);
-
-  useEffect(() => {
-    loadTenants();
-  }, [loadTenants]);
-
   const effectiveQuery = searchQuery.trim() || search.trim();
 
   const filtered = useMemo(() => {
-    return tenants.filter((c) => {
+    return clientTenants.filter((c) => {
       // Search text filter
       if (effectiveQuery) {
         const q = effectiveQuery.toLowerCase();
@@ -49,10 +48,10 @@ export function ClientsTab() {
 
       return true;
     });
-  }, [tenants, effectiveQuery, clientsFilter]);
+  }, [clientTenants, effectiveQuery, clientsFilter]);
 
-  const totalMRR = tenants.reduce((acc, c) => acc + Number(c.monthly_price || 0), 0);
-  const totalLeads = tenants.reduce((acc, c) => acc + Number(c.leads_count_current_month || 0), 0);
+  const liveCount = clientTenants.filter((t) => t.onboarding_status === 'live').length;
+  const setupCount = clientTenants.filter((t) => t.onboarding_status !== 'live').length;
 
   return (
     <div className="space-y-4">
@@ -98,10 +97,9 @@ export function ClientsTab() {
             <span className="text-xs text-gray-500 uppercase">Empresas na Base</span>
             <Users className="h-4 w-4 text-emerald-400" />
           </div>
-          <p className="text-2xl font-black text-white mt-1">{tenants.length} Clientes</p>
+          <p className="text-2xl font-black text-white mt-1">{clientCounts.total} Clientes</p>
           <p className="text-xs text-emerald-400 mt-0.5">
-            {tenants.filter((t) => t.onboarding_status === 'live').length} no ar ·{' '}
-            {tenants.filter((t) => t.onboarding_status !== 'live').length} em setup
+            {liveCount} no ar · {setupCount} em setup
           </p>
         </div>
 
@@ -113,9 +111,9 @@ export function ClientsTab() {
             <span className="text-xs text-gray-500 uppercase">MRR da Carteira</span>
             <TrendingUp className="h-4 w-4 text-emerald-400" />
           </div>
-          <p className="text-2xl font-black text-emerald-400 mt-1">{formatCurrency(totalMRR)}</p>
+          <p className="text-2xl font-black text-emerald-400 mt-1">{formatCurrency(mrr)}</p>
           <p className="text-xs text-gray-400 mt-0.5">
-            Média por cliente: {formatCurrency(tenants.length > 0 ? totalMRR / tenants.length : 0)}
+            Média por cliente: {formatCurrency(clientCounts.total > 0 ? mrr / clientCounts.total : 0)}
           </p>
         </div>
 
@@ -124,8 +122,8 @@ export function ClientsTab() {
             <span className="text-xs text-gray-500 uppercase">Leads Atendidos Mês</span>
             <Star className="h-4 w-4 text-cyan-400" />
           </div>
-          <p className="text-2xl font-black text-cyan-400 mt-1">{totalLeads} leads</p>
-          <p className="text-xs text-gray-400 mt-0.5">Volume processado pela IA dos clientes</p>
+          <p className="text-2xl font-black text-cyan-400 mt-1">{totalLeadsCount} leads</p>
+          <p className="text-xs text-gray-400 mt-0.5">Volume real processado pela IA</p>
         </div>
       </div>
 
@@ -159,14 +157,19 @@ export function ClientsTab() {
             {filtered.length === 0 ? (
               <div className="p-10 text-center text-gray-400 text-sm">
                 <Users className="h-8 w-8 text-gray-600 mx-auto mb-2" />
-                <p className="font-semibold text-white mb-1">Nenhum cliente encontrado</p>
+                <p className="font-semibold text-white mb-1">
+                  {clientsFilter === 'founders'
+                    ? 'Nenhum cliente fundador encontrado'
+                    : 'Nenhum cliente cadastrado na carteira'}
+                </p>
                 <p className="text-xs text-gray-500 max-w-sm mx-auto">
-                  Clique no botão &quot;+ Cadastrar Novo Cliente&quot; acima para registrar um novo assinante ou aguarde novos cadastros.
+                  {clientsFilter === 'founders'
+                    ? 'Nenhum assinante cadastrado com o plano Fundador (R$ 347/mês).'
+                    : 'Clique no botão "+ Cadastrar Novo Cliente" acima para registrar um novo assinante ou aguarde novos cadastros pelo site.'}
                 </p>
               </div>
             ) : (
               filtered.map((tenant) => {
-                const isInternalRobot = tenant.id === '00000000-0000-0000-0000-000000000000';
                 const isFounder = Number(tenant.monthly_price) === 347.0;
                 return (
                   <div
@@ -176,11 +179,6 @@ export function ClientsTab() {
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-bold text-white">{tenant.name}</span>
-                        {isInternalRobot && (
-                          <Badge variant="outline" className="gap-1 text-[10px] bg-cyan-500/10 text-cyan-400 border-cyan-500/30">
-                            Robô Oficial Pulso 24
-                          </Badge>
-                        )}
                         {isFounder && (
                           <Badge variant="secondary" className="gap-1 text-[10px] bg-amber-500/10 text-amber-400 border-amber-500/30">
                             <Star className="h-2.5 w-2.5" />
@@ -192,65 +190,66 @@ export function ClientsTab() {
                         </Badge>
                       </div>
 
-                    <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
-                      <span className="text-gray-300 font-medium capitalize">
-                        {tenant.niche.replace('_', ' ')}
-                      </span>
-                      <span>·</span>
-                      <span className="text-emerald-400 font-bold uppercase">{tenant.plan}</span>
-                      <span>·</span>
-                      <span>Responsável: {tenant.owner_name}</span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1 font-mono">
-                        {tenant.whatsapp_connected ? (
-                          <>
-                            <Wifi className="h-3 w-3 text-emerald-400" />
-                            <span className="text-emerald-400">Instância WhatsApp Conectada</span>
-                          </>
-                        ) : (
-                          <>
-                            <WifiOff className="h-3 w-3 text-red-400" />
-                            <span className="text-red-400">WhatsApp Desconectado</span>
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 justify-between md:justify-end flex-shrink-0">
-                    <div className="text-right">
-                      <p className="text-sm font-black text-white">
-                        {formatCurrency(Number(tenant.monthly_price))}
-                        <span className="text-xs font-normal text-gray-500">/mês</span>
-                      </p>
-                      <p className="text-xs text-gray-400 font-mono">
-                        {tenant.leads_count_current_month} leads (Custo IA: R$ {Number(tenant.ai_cost_current_month).toFixed(2)})
-                      </p>
+                      <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
+                        <span className="text-gray-300 font-medium capitalize">
+                          {tenant.niche.replace('_', ' ')}
+                        </span>
+                        <span>·</span>
+                        <span className="text-emerald-400 font-bold uppercase">{tenant.plan}</span>
+                        <span>·</span>
+                        <span>Responsável: {tenant.owner_name || 'Não informado'}</span>
+                        <span>·</span>
+                        <span className="flex items-center gap-1 font-mono">
+                          {tenant.whatsapp_connected ? (
+                            <>
+                              <Wifi className="h-3 w-3 text-emerald-400" />
+                              <span className="text-emerald-400">Instância WhatsApp Conectada</span>
+                            </>
+                          ) : (
+                            <>
+                              <WifiOff className="h-3 w-3 text-red-400" />
+                              <span className="text-red-400">WhatsApp Desconectado</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Modo Espelho: Acessa o Dashboard com os dados deste Tenant */}
-                    <div className="flex items-center gap-2">
-                      <Button variant="default" size="sm" asChild>
-                        <Link href="/dashboard">
-                          <Eye className="h-3.5 w-3.5" />
-                          Modo Espelho
-                        </Link>
-                      </Button>
+                    <div className="flex items-center gap-4 justify-between md:justify-end flex-shrink-0">
+                      <div className="text-right">
+                        <p className="text-sm font-black text-white">
+                          {formatCurrency(Number(tenant.monthly_price))}
+                          <span className="text-xs font-normal text-gray-500">/mês</span>
+                        </p>
+                        <p className="text-xs text-gray-400 font-mono">
+                          {tenant.leads_count_current_month || 0} leads (Custo IA: R$ {Number(tenant.ai_cost_current_month || 0).toFixed(2)})
+                        </p>
+                      </div>
 
-                      {tenant.owner_phone && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => window.open(`https://wa.me/${tenant.owner_phone}`, '_blank')}
-                        >
-                          <Phone className="h-3.5 w-3.5 text-[#25D366]" />
+                      {/* Modo Espelho: Acessa o Dashboard com os dados deste Tenant */}
+                      <div className="flex items-center gap-2">
+                        <Button variant="default" size="sm" asChild>
+                          <Link href="/dashboard">
+                            <Eye className="h-3.5 w-3.5" />
+                            Modo Espelho
+                          </Link>
                         </Button>
-                      )}
+
+                        {tenant.owner_phone && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => window.open(`https://wa.me/${tenant.owner_phone}`, '_blank')}
+                          >
+                            <Phone className="h-3.5 w-3.5 text-[#25D366]" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            }))}
+                );
+              })
+            )}
           </div>
         </CardContent>
       </Card>

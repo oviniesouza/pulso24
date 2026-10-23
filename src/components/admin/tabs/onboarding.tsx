@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, Clock, Zap, MessageCircle, FileText, ExternalLink, ArrowRight, Cloud, Filter, X } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, Zap, MessageCircle, FileText, ExternalLink, ArrowRight, Cloud, Filter, X, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getTenants, updateTenantOnboardingStatus, type Tenant } from '@/lib/supabase/service';
@@ -38,14 +38,15 @@ const statusConfig: Record<OnboardingStatus, { label: string; variant: 'warning'
 };
 
 export function OnboardingTab() {
-  const { onboardingFilter, setOnboardingFilter } = useAdminView();
+  const { onboardingFilter, setOnboardingFilter, refreshData } = useAdminView();
   const [clients, setClients] = useState<ClientItem[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const loadTenantsData = useCallback(async () => {
     const data: Tenant[] = await getTenants();
-    if (data && data.length > 0) {
-      const mapped: ClientItem[] = data.map((t) => {
+    const realClients = (data || []).filter((t) => t.id !== '00000000-0000-0000-0000-000000000000');
+    if (realClients && realClients.length > 0) {
+      const mapped: ClientItem[] = realClients.map((t) => {
         const isLive = t.onboarding_status === 'live';
         const isConfig = t.onboarding_status === 'configuring';
 
@@ -75,6 +76,9 @@ export function OnboardingTab() {
 
       setClients(mapped);
       setExpanded(mapped[0]?.id || null);
+    } else {
+      setClients([]);
+      setExpanded(null);
     }
   }, []);
 
@@ -91,7 +95,9 @@ export function OnboardingTab() {
         const nextStatus: OnboardingStatus = allDone ? 'live' : 'configuring';
 
         // Atualiza no Supabase
-        updateTenantOnboardingStatus(clientId, nextStatus);
+        updateTenantOnboardingStatus(clientId, nextStatus).then(() => {
+          refreshData();
+        });
 
         return {
           ...c,
@@ -113,6 +119,7 @@ export function OnboardingTab() {
 
     // Grava no Supabase
     await updateTenantOnboardingStatus(clientId, next);
+    await refreshData();
   };
 
   const visibleClients = useMemo(() => {
@@ -176,7 +183,20 @@ export function OnboardingTab() {
 
       {/* Cards de Clientes na Fila */}
       <div className="space-y-3">
-        {visibleClients.map((client) => {
+        {visibleClients.length === 0 ? (
+          <div className="border border-[#1F2937] bg-[#111827] p-10 text-center text-gray-400">
+            <Rocket className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+            <p className="font-semibold text-white mb-1">
+              {onboardingFilter === 'all'
+                ? 'Nenhum cliente na fila de onboarding'
+                : 'Nenhum cliente nesta etapa da fila'}
+            </p>
+            <p className="text-xs text-gray-500 max-w-sm mx-auto">
+              Novos assinantes contratados pelo site ou cadastrados no botão &quot;+ Cadastrar Novo Cliente&quot; entrarão automaticamente aqui para configuração de prompt e WhatsApp.
+            </p>
+          </div>
+        ) : (
+          visibleClients.map((client) => {
           const sc = statusConfig[client.status];
           const doneCount = client.checklist.filter((c) => c.done).length;
           const progress = Math.round((doneCount / client.checklist.length) * 100);
@@ -310,7 +330,7 @@ export function OnboardingTab() {
               )}
             </motion.div>
           );
-        })}
+        }))}
       </div>
     </div>
   );

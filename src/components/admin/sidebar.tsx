@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/utils';
 import {
   useAdminView,
   type AdminTab,
@@ -48,6 +49,11 @@ export function AdminSidebar() {
     setSidebarOpenMobile,
     openNewClientModal,
     openRecargaModal,
+    onboardingCounts,
+    clientCounts,
+    mrr,
+    netProfit,
+    margin,
   } = useAdminView();
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -159,7 +165,7 @@ export function AdminSidebar() {
                 >
                   <span>Fila de Implementação</span>
                   <Badge variant="outline" className="text-[10px] py-0 px-1 border-white/20">
-                    2
+                    {onboardingCounts.total}
                   </Badge>
                 </button>
                 <button
@@ -174,7 +180,7 @@ export function AdminSidebar() {
                     <Clock className="h-3.5 w-3.5 text-amber-400" />
                     <span>⏳ Pendentes</span>
                   </div>
-                  <span className="text-[10px] text-amber-400 font-bold">1</span>
+                  <span className="text-[10px] text-amber-400 font-bold">{onboardingCounts.waiting}</span>
                 </button>
                 <button
                   onClick={() => handleSelectOnboarding('configuring')}
@@ -188,7 +194,7 @@ export function AdminSidebar() {
                     <Zap className="h-3.5 w-3.5 text-cyan-400" />
                     <span>⚙️ Configurando</span>
                   </div>
-                  <span className="text-[10px] text-cyan-400 font-bold">1</span>
+                  <span className="text-[10px] text-cyan-400 font-bold">{onboardingCounts.configuring}</span>
                 </button>
                 <button
                   onClick={() => handleSelectOnboarding('live')}
@@ -202,7 +208,7 @@ export function AdminSidebar() {
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                     <span>🟢 Concluídos / Live</span>
                   </div>
-                  <span className="text-[10px] text-emerald-400 font-bold">1</span>
+                  <span className="text-[10px] text-emerald-400 font-bold">{onboardingCounts.live}</span>
                 </button>
               </div>
             )}
@@ -237,7 +243,7 @@ export function AdminSidebar() {
                 >
                   <span>Gestão de Clientes</span>
                   <Badge variant="outline" className="text-[10px] py-0 px-1 border-white/20">
-                    4
+                    {clientCounts.total}
                   </Badge>
                 </button>
                 <button
@@ -252,7 +258,7 @@ export function AdminSidebar() {
                     <Star className="h-3.5 w-3.5 text-amber-400" />
                     <span>🌟 Clientes Fundadores</span>
                   </div>
-                  <span className="text-[10px] text-amber-400 font-bold">2</span>
+                  <span className="text-[10px] text-amber-400 font-bold">{clientCounts.founders}</span>
                 </button>
                 <button
                   onClick={() => handleSelectClients('evolution')}
@@ -380,15 +386,17 @@ export function AdminSidebar() {
           <div className="p-2.5 bg-[#111827] border border-white/5 rounded-sm text-left space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-gray-400 uppercase">MRR Carteira</span>
-              <span className="text-xs font-bold text-emerald-400">R$ 2.038,00</span>
+              <span className="text-xs font-bold text-emerald-400">{formatCurrency(mrr)}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-gray-400 uppercase">Lucro Líquido</span>
-              <span className="text-xs font-bold text-white">R$ 1.858,00</span>
+              <span className={`text-xs font-bold ${netProfit >= 0 ? 'text-white' : 'text-amber-400'}`}>
+                {formatCurrency(netProfit)}
+              </span>
             </div>
             <div className="flex items-center justify-between text-[10px] text-gray-500 pt-0.5 border-t border-white/5">
               <span>Margem Operacional</span>
-              <span className="text-emerald-400 font-bold">91%</span>
+              <span className="text-emerald-400 font-bold">{margin}%</span>
             </div>
           </div>
 

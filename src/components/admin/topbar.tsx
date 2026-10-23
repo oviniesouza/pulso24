@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import {
   Menu,
   Search,
@@ -12,13 +11,11 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminView } from '@/contexts/admin-view-context';
-import { getSaasExpenses } from '@/lib/supabase/service';
 
 export function AdminTopbar() {
   const {
     activeTab,
-    onboardingFilter,
-    clientsFilter,
+    expenses,
     searchQuery,
     setSearchQuery,
     setSidebarOpenMobile,
@@ -27,18 +24,10 @@ export function AdminTopbar() {
     setActiveTab,
   } = useAdminView();
 
-  const [openAiBal, setOpenAiBal] = useState<number>(10.0);
-
-  useEffect(() => {
-    async function loadBal() {
-      const exps = await getSaasExpenses();
-      const openAiExp = exps.find((e) => e.category === 'openai');
-      if (openAiExp && openAiExp.balance_remaining !== null) {
-        setOpenAiBal(Number(openAiExp.balance_remaining));
-      }
-    }
-    loadBal();
-  }, []);
+  const openAiExp = expenses.find((e) => e.category === 'openai');
+  const openAiBal = openAiExp?.balance_remaining !== null && openAiExp?.balance_remaining !== undefined
+    ? Number(openAiExp.balance_remaining)
+    : 10.0;
 
   const tabTitles: Record<string, string> = {
     onboarding: 'Fila de Onboarding & Ativação',

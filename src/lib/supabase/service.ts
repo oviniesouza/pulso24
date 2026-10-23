@@ -206,6 +206,21 @@ export async function getLeads(tenantId?: string): Promise<Lead[]> {
   }
 }
 
+export async function getLeadsCount(tenantId?: string): Promise<number> {
+  try {
+    const supabase = createClient();
+    let query = supabase.from('leads').select('*', { count: 'exact', head: true });
+    if (tenantId) {
+      query = query.eq('tenant_id', tenantId);
+    }
+    const { count, error } = await query;
+    if (error || count === null) return 0;
+    return count;
+  } catch {
+    return 0;
+  }
+}
+
 export async function updateLeadAiStatus(leadId: string, aiActive: boolean) {
   try {
     const supabase = createClient();

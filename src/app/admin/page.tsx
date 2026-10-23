@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ShieldCheck, Activity } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { OnboardingTab } from '@/components/admin/tabs/onboarding';
 import { CostsTab } from '@/components/admin/tabs/costs';
 import { AlertsTab } from '@/components/admin/tabs/alerts';
@@ -9,28 +8,10 @@ import { ClientsTab } from '@/components/admin/tabs/clients';
 import { FinancialTab } from '@/components/admin/tabs/financial';
 import { useAdminView } from '@/contexts/admin-view-context';
 import { Badge } from '@/components/ui/badge';
-import { getTenants, getSaasExpenses, type Tenant } from '@/lib/supabase/service';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AdminPage() {
-  const { activeTab } = useAdminView();
-  const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      const data = await getTenants();
-      setTenants(data || []);
-      setLoading(false);
-    }
-    loadData();
-  }, []);
-
-  const clientTenants = tenants.filter((t) => t.id !== '00000000-0000-0000-0000-000000000000');
-  const mrr = clientTenants
-    .filter((t) => t.subscription_status === 'active')
-    .reduce((acc, t) => acc + Number(t.monthly_price || 0), 0);
+  const { activeTab, mrr, clientTenants } = useAdminView();
   const activeTenantsCount = clientTenants.length;
 
   return (
