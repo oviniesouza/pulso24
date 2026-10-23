@@ -266,23 +266,24 @@ Este é o primeiro contato do cliente. Acolha com simpatia e dinamismo, apresent
       }
     }
 
-    // 7. Gravar no Supabase (Lead + IA com media_type correto)
-    await supabase.from('messages').insert([
-      {
-        tenant_id: tenantId,
-        lead_id: leadId,
-        sender_type: 'lead',
-        content: userText,
-        media_type: mediaType,
-      },
-      {
-        tenant_id: tenantId,
-        lead_id: leadId,
-        sender_type: 'ai',
-        content: aiReply,
-        media_type: 'text',
-      },
-    ]);
+    // 7. Gravar no Supabase (Lead + IA em blocos separados para coincidir com o envio do WhatsApp)
+    await supabase.from('messages').insert({
+      tenant_id: tenantId,
+      lead_id: leadId,
+      sender_type: 'lead',
+      content: userText,
+      media_type: mediaType,
+    });
+
+    const aiMessagesToInsert = (paragraphs.length > 0 ? paragraphs : [aiReply]).map((p: string) => ({
+      tenant_id: tenantId,
+      lead_id: leadId,
+      sender_type: 'ai' as const,
+      content: p,
+      media_type: 'text' as const,
+    }));
+
+    await supabase.from('messages').insert(aiMessagesToInsert);
 
     // Atualizar Lead (resumo e estágio)
     const lower = userText.toLowerCase();

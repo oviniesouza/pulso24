@@ -130,21 +130,50 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
 
   useEffect(() => {
     loadLeadsData();
+    // Atualização em background dos leads a cada 6 segundos
+    const leadsInterval = setInterval(() => {
+      loadLeadsData();
+    }, 6000);
+    return () => clearInterval(leadsInterval);
   }, [loadLeadsData]);
 
-  // Carregar Mensagens do Lead Selecionado de forma estável (sem loop)
+  // Carregar Mensagens do Lead com atualização contínua em tempo real (2.5s)
   useEffect(() => {
-    async function loadChat() {
+    let isMounted = true;
+
+    async function loadChat(showLoading = false) {
       if (!selectedLead?.id) {
         setMessages([]);
         return;
       }
-      setLoadingMessages(true);
+      if (showLoading) setLoadingMessages(true);
       const msgs = await getMessages(selectedLead.id);
-      setMessages(msgs || []);
-      setLoadingMessages(false);
+      if (isMounted && msgs) {
+        setMessages((prev) => {
+          // Se não houve alteração no total de mensagens e na última mensagem, mantém estado
+          if (
+            prev.length === msgs.length &&
+            prev[prev.length - 1]?.id === msgs[msgs.length - 1]?.id
+          ) {
+            return prev;
+          }
+          return msgs;
+        });
+      }
+      if (showLoading && isMounted) setLoadingMessages(false);
     }
-    loadChat();
+
+    loadChat(true);
+
+    // Polling contínuo de 2.5s em segundo plano (sem piscar a tela)
+    const interval = setInterval(() => {
+      loadChat(false);
+    }, 2500);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [selectedLead?.id]);
 
   // Alternar IA Ativa/Pausada
@@ -381,29 +410,42 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
                       </div>
 
                       <div className={`max-w-[85%] flex flex-col ${msg.sender_type === 'lead' ? 'items-start' : 'items-end'}`}>
-                        <div
-                          className={`border px-3 py-2 text-xs leading-relaxed whitespace-pre-line rounded-sm ${
-                            msg.sender_type === 'ai'
-                              ? 'border-cyan-500/20 bg-cyan-500/5 text-gray-200'
-                              : msg.sender_type === 'human'
-                                ? 'border-emerald-500/30 bg-emerald-500/10 text-white'
-                                : 'border-[#1F2937] bg-[#0B0F19] text-gray-300'
-                          }`}
-                        >
-                          {msg.media_type === 'audio' && (
-                            <div className="flex items-center gap-1.5 text-cyan-400 font-bold mb-1">
-                              <Mic className="h-3.5 w-3.5" />
-                              Áudio Transcrito (Whisper)
+                        {(() => {
+                          const blocks = (msg.sender_type === 'ai' && msg.content.includes('\n\n'))
+                            ? msg.content.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean)
+                            : [msg.content];
+
+                          return (
+                            <div className="space-y-1.5 w-full flex flex-col items-inherit">
+                              {blocks.map((block, bIdx) => (
+                                <div
+                                  key={bIdx}
+                                  className={`border px-3 py-2 text-xs leading-relaxed whitespace-pre-line rounded-sm ${
+                                    msg.sender_type === 'ai'
+                                      ? 'border-cyan-500/20 bg-cyan-500/5 text-gray-200'
+                                      : msg.sender_type === 'human'
+                                        ? 'border-emerald-500/30 bg-emerald-500/10 text-white'
+                                        : 'border-[#1F2937] bg-[#0B0F19] text-gray-300'
+                                  }`}
+                                >
+                                  {bIdx === 0 && msg.media_type === 'audio' && (
+                                    <div className="flex items-center gap-1.5 text-cyan-400 font-bold mb-1">
+                                      <Mic className="h-3.5 w-3.5" />
+                                      Áudio Transcrito (Whisper)
+                                    </div>
+                                  )}
+                                  {bIdx === 0 && msg.media_type === 'document' && (
+                                    <div className="flex items-center gap-1.5 text-emerald-400 font-bold mb-1">
+                                      <FileText className="h-3.5 w-3.5" />
+                                      Documento PDF
+                                    </div>
+                                  )}
+                                  <div>{block}</div>
+                                </div>
+                              ))}
                             </div>
-                          )}
-                          {msg.media_type === 'document' && (
-                            <div className="flex items-center gap-1.5 text-emerald-400 font-bold mb-1">
-                              <FileText className="h-3.5 w-3.5" />
-                              Documento PDF
-                            </div>
-                          )}
-                          {msg.content}
-                        </div>
+                          );
+                        })()}
 
                         {msg.created_at && (
                           <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1 px-1 font-mono">
