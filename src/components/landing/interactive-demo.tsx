@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
   Play,
-  Pause,
-  RotateCcw,
   FileText,
   CalendarCheck,
   Check,
@@ -13,7 +11,6 @@ import {
   Sparkles,
   CheckCheck,
   ArrowRight,
-  Zap,
 } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
 import { Button } from '@/components/ui/button';
@@ -75,7 +72,7 @@ const DEMO_DATA = {
 
 const WAVE_BARS = [10, 16, 12, 20, 14, 18, 22, 16, 10, 18, 20, 12, 8];
 
-// Contador numérico suave sem dependências pesadas
+// Contador numérico suave com física natural
 function AnimatedCounter({
   target,
   prefix = '',
@@ -96,7 +93,7 @@ function AnimatedCounter({
     }
 
     let start = 0;
-    const duration = 900;
+    const duration = 1000;
     const startTime = performance.now();
 
     const animate = (now: number) => {
@@ -125,78 +122,97 @@ function AnimatedCounter({
 
 export function InteractiveDemo() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.25 });
+  // Anima apenas uma vez quando entra na tela (sem looping)
+  const isInView = useInView(sectionRef, { once: true, amount: 0.25 });
 
-  // Etapas da simulação (0 a 10)
-  // 0: Início
-  // 1: Áudio do cliente entra e toca (0.8s)
-  // 2: PDF anexado do cliente entra (1.8s)
-  // 3: IA processa e tag surge com sparkles (2.8s)
-  // 4: IA digitando... (3.6s)
-  // 5: Balão 1 da IA entra (4.6s)
-  // 6: Balão 2 da IA entra (6.0s)
-  // 7: Balão 3 da IA entra (7.4s)
-  // 8: Conector acende com feixe de dados (8.3s)
-  // 9: CRM ativa métricas (Score e Ticket) (9.0s)
-  // 10: Timeline passos 1, 2 e 3 entram em sequência e finaliza (9.8s - 16s)
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  // Estados com cadência calma e sem sobreposição
+  const [showAudio, setShowAudio] = useState(false);
   const [audioSeconds, setAudioSeconds] = useState(0);
+  const [showPdf, setShowPdf] = useState(false);
+  const [showTag, setShowTag] = useState(false);
+  const [typingTarget, setTypingTarget] = useState<number | null>(null);
+  const [repliesShown, setRepliesShown] = useState<number>(0);
+  const [connectorActive, setConnectorActive] = useState(false);
+  const [crmMetricsActive, setCrmMetricsActive] = useState(false);
+  const [timelineStepsActive, setTimelineStepsActive] = useState<number>(0);
+  const [isDone, setIsDone] = useState(false);
 
-  // Controle de timeline da simulação
   useEffect(() => {
-    if (!isInView || isPaused) return;
+    if (!isInView) return;
 
-    const timer = setInterval(() => {
-      setCurrentStep((prev) => {
-        if (prev >= 10) {
-          // Permanece no estado final por 7 segundos e reinicia suavemente
-          return 10;
-        }
-        return prev + 1;
-      });
-    }, 1100);
+    const timeouts: NodeJS.Timeout[] = [];
 
-    return () => clearInterval(timer);
-  }, [isInView, isPaused]);
+    // 1. Áudio do cliente entra suavemente (0.8s)
+    timeouts.push(setTimeout(() => setShowAudio(true), 800));
 
-  // Loop de reinício após leitura completa
-  useEffect(() => {
-    if (!isInView || isPaused) return;
+    // Contador da reprodução do áudio (0s -> 6s)
+    timeouts.push(setTimeout(() => setAudioSeconds(2), 1500));
+    timeouts.push(setTimeout(() => setAudioSeconds(4), 2200));
+    timeouts.push(setTimeout(() => setAudioSeconds(6), 2900));
 
-    if (currentStep === 10) {
-      const loopTimeout = setTimeout(() => {
-        setCurrentStep(0);
-      }, 7000);
-      return () => clearTimeout(loopTimeout);
-    }
-  }, [currentStep, isInView, isPaused]);
+    // 2. Documento PDF anexado entra (3.0s)
+    timeouts.push(setTimeout(() => setShowPdf(true), 3000));
 
-  // Contador de áudio tocando
-  useEffect(() => {
-    if (currentStep >= 1 && currentStep <= 4) {
-      const interval = setInterval(() => {
-        setAudioSeconds((sec) => (sec < 6 ? sec + 1 : 6));
-      }, 300);
-      return () => clearInterval(interval);
-    } else if (currentStep === 0) {
-      setAudioSeconds(0);
-    }
-  }, [currentStep]);
+    // 3. IA analisa e tag surge com sparkles (4.5s)
+    timeouts.push(setTimeout(() => setShowTag(true), 4500));
 
-  const handleRestart = () => {
-    setCurrentStep(0);
-    setAudioSeconds(0);
-    setIsPaused(false);
-  };
+    // 4. IA começa a digitar a primeira resposta (5.8s)
+    timeouts.push(setTimeout(() => setTypingTarget(1), 5800));
 
-  const handleShowAll = () => {
-    setCurrentStep(10);
-    setAudioSeconds(6);
-  };
+    // 5. Balão 1 entra e digitando some imediatamente (7.5s)
+    timeouts.push(
+      setTimeout(() => {
+        setTypingTarget(null);
+        setRepliesShown(1);
+      }, 7500)
+    );
 
-  const isAudioPlaying = currentStep >= 1 && currentStep <= 3;
-  const isTyping = currentStep === 4 || currentStep === 5;
+    // 6. IA começa a digitar a segunda resposta (9.0s)
+    timeouts.push(setTimeout(() => setTypingTarget(2), 9000));
+
+    // 7. Balão 2 entra e digitando some imediatamente (10.8s)
+    timeouts.push(
+      setTimeout(() => {
+        setTypingTarget(null);
+        setRepliesShown(2);
+      }, 10800)
+    );
+
+    // 8. IA começa a digitar a terceira resposta (12.2s)
+    timeouts.push(setTimeout(() => setTypingTarget(3), 12200));
+
+    // 9. Balão 3 entra e digitando some imediatamente (14.0s)
+    timeouts.push(
+      setTimeout(() => {
+        setTypingTarget(null);
+        setRepliesShown(3);
+      }, 14000)
+    );
+
+    // 10. Conector ativa feixe de dados conectando ao CRM (15.2s)
+    timeouts.push(setTimeout(() => setConnectorActive(true), 15200));
+
+    // 11. CRM ativa métricas: Score 98 e Ticket R$ 65.000 (16.2s)
+    timeouts.push(setTimeout(() => setCrmMetricsActive(true), 16200));
+
+    // 12. Timeline Passo 1: Triagem concluída (17.4s)
+    timeouts.push(setTimeout(() => setTimelineStepsActive(1), 17400));
+
+    // 13. Timeline Passo 2: Agendado automaticamente (18.6s)
+    timeouts.push(setTimeout(() => setTimelineStepsActive(2), 18600));
+
+    // 14. Timeline Passo 3: Resumo enviado (19.8s)
+    timeouts.push(
+      setTimeout(() => {
+        setTimelineStepsActive(3);
+        setIsDone(true);
+      }, 19800)
+    );
+
+    return () => timeouts.forEach(clearTimeout);
+  }, [isInView]);
+
+  const isAudioPlaying = showAudio && audioSeconds < 6;
 
   return (
     <section
@@ -209,7 +225,7 @@ export function InteractiveDemo() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Cabeçalho da Seção */}
-        <div className="text-center max-w-3xl mx-auto mb-6">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-3 py-1 text-xs text-emerald-400 tracking-wider uppercase mb-3 rounded-full">
             <Sparkles className="h-3.5 w-3.5" />
             Veja na Prática
@@ -221,48 +237,6 @@ export function InteractiveDemo() {
           <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto mt-3 leading-relaxed px-2">
             Enquanto o atendimento comum dorme até as 9h, a IA acolhe o cliente em segundos, analisa a planta e agenda a reunião direto no seu calendário.
           </p>
-        </div>
-
-        {/* Barra de Controle da Simulação Interativa */}
-        <div className="max-w-2xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/10 text-xs text-gray-400 backdrop-blur-md">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="font-mono text-emerald-400 text-[11px] font-semibold">
-              {currentStep < 10 ? 'Simulação em Tempo Real' : 'Atendimento Concluído'}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsPaused(!isPaused)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
-              title={isPaused ? 'Continuar' : 'Pausar'}
-            >
-              {isPaused ? <Play className="h-3 w-3 text-emerald-400" /> : <Pause className="h-3 w-3" />}
-              <span>{isPaused ? 'Continuar' : 'Pausar'}</span>
-            </button>
-
-            <button
-              onClick={handleRestart}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
-              title="Reiniciar simulação"
-            >
-              <RotateCcw className="h-3 w-3 text-emerald-400" />
-              <span>Reiniciar</span>
-            </button>
-
-            {currentStep < 10 && (
-              <button
-                onClick={handleShowAll}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-colors cursor-pointer"
-              >
-                <span>Ver tudo</span>
-              </button>
-            )}
-          </div>
         </div>
 
         {/* Simulador Lado a Lado Compacto com Grid Assimétrico de 12 Colunas */}
@@ -286,7 +260,7 @@ export function InteractiveDemo() {
                       </p>
                       <p className="text-[10px] sm:text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                        {isTyping ? 'IA digitando...' : 'Online • Atendente IA Pulso 24'}
+                        {typingTarget !== null ? 'IA digitando...' : 'Online • Atendente IA Pulso 24'}
                       </p>
                     </div>
                   </div>
@@ -299,10 +273,10 @@ export function InteractiveDemo() {
                 <div className="space-y-2.5">
                   {/* Mensagem 1 do Cliente: Áudio Compacto em Esmeralda Escuro */}
                   <AnimatePresence>
-                    {currentStep >= 1 && (
+                    {showAudio && (
                       <motion.div
-                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, ease: 'easeOut' }}
                         className="flex justify-end"
                       >
@@ -312,7 +286,7 @@ export function InteractiveDemo() {
                               <Play className="h-3 w-3 fill-emerald-300 ml-0.5 text-emerald-300" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              {/* Onda sonora animada ao vivo */}
+                              {/* Onda sonora */}
                               <div className="flex items-center gap-1 h-4 overflow-hidden">
                                 {WAVE_BARS.map((h, i) => (
                                   <motion.div
@@ -354,15 +328,15 @@ export function InteractiveDemo() {
                             </div>
                           </div>
 
-                          {/* Tag Compacta e Elegante com animação de leitura */}
-                          {currentStep >= 3 && (
+                          {/* Tag Compacta da IA */}
+                          {showTag && (
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               transition={{ duration: 0.3 }}
                               className="mt-2.5 pt-2 border-t border-emerald-500/20 flex items-center gap-1.5 text-[11px] text-emerald-200 font-medium leading-tight"
                             >
-                              <Sparkles className="h-3.5 w-3.5 text-emerald-300 shrink-0 animate-pulse" />
+                              <Sparkles className="h-3.5 w-3.5 text-emerald-300 shrink-0" />
                               <span>{DEMO_DATA.audioTag}</span>
                             </motion.div>
                           )}
@@ -371,12 +345,12 @@ export function InteractiveDemo() {
                     )}
                   </AnimatePresence>
 
-                  {/* Mensagem 2 do Cliente: Anexo Processado Compacto */}
+                  {/* Mensagem 2 do Cliente: Anexo Processado */}
                   <AnimatePresence>
-                    {currentStep >= 2 && (
+                    {showPdf && (
                       <motion.div
-                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, ease: 'easeOut' }}
                         className="flex justify-end"
                       >
@@ -387,7 +361,7 @@ export function InteractiveDemo() {
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-semibold truncate text-white">{DEMO_DATA.attachment.name}</p>
                             <p className="text-[10px] text-emerald-200/70 font-mono">
-                              {DEMO_DATA.attachment.size} • {currentStep >= 3 ? 'Processado ✨' : 'Analisando...'}
+                              {DEMO_DATA.attachment.size} • {showTag ? 'Processado ✨' : 'Analisando...'}
                             </p>
                           </div>
                           <span className="text-[10px] text-emerald-200/80 self-end flex items-center gap-0.5 shrink-0 font-mono">
@@ -398,13 +372,77 @@ export function InteractiveDemo() {
                     )}
                   </AnimatePresence>
 
-                  {/* Balão de Digitação Humanizado da IA */}
+                  {/* Balão 1 da IA */}
                   <AnimatePresence>
-                    {isTyping && (
+                    {repliesShown >= 1 && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, ease: 'easeOut' }}
+                        className="flex justify-start"
+                      >
+                        <div className="max-w-[92%] sm:max-w-[85%] bg-[#202C33] text-gray-100 px-3.5 py-2.5 rounded-2xl rounded-tl-xs shadow-xs border border-white/5">
+                          <p className="text-[13px] leading-snug text-gray-200">
+                            {DEMO_DATA.aiReplies[0].text}
+                          </p>
+                          <div className="flex justify-end items-center gap-1 text-[10px] text-gray-400 mt-1 font-mono">
+                            <span>{DEMO_DATA.aiReplies[0].time}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Balão 2 da IA */}
+                  <AnimatePresence>
+                    {repliesShown >= 2 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, ease: 'easeOut' }}
+                        className="flex justify-start"
+                      >
+                        <div className="max-w-[92%] sm:max-w-[85%] bg-[#202C33] text-gray-100 px-3.5 py-2.5 rounded-2xl shadow-xs border border-white/5">
+                          <p className="text-[13px] leading-snug text-gray-200">
+                            {DEMO_DATA.aiReplies[1].text}
+                          </p>
+                          <div className="flex justify-end items-center gap-1 text-[10px] text-gray-400 mt-1 font-mono">
+                            <span>{DEMO_DATA.aiReplies[1].time}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Balão 3 da IA */}
+                  <AnimatePresence>
+                    {repliesShown >= 3 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, ease: 'easeOut' }}
+                        className="flex justify-start"
+                      >
+                        <div className="max-w-[92%] sm:max-w-[85%] bg-[#202C33] text-gray-100 px-3.5 py-2.5 rounded-2xl shadow-xs border border-white/5">
+                          <p className="text-[13px] leading-snug text-gray-200">
+                            {DEMO_DATA.aiReplies[2].text}
+                          </p>
+                          <div className="flex justify-end items-center gap-1 text-[10px] text-gray-400 mt-1 font-mono">
+                            <span>{DEMO_DATA.aiReplies[2].time}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Indicador de Digitação da IA (Aparece SEMPRE no final, apenas enquanto a próxima resposta está sendo gerada) */}
+                  <AnimatePresence>
+                    {typingTarget !== null && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.2 }}
                         className="flex justify-start"
                       >
                         <div className="bg-[#202C33] text-gray-400 px-3.5 py-2 rounded-2xl rounded-tl-xs shadow-xs border border-white/5 flex items-center gap-1.5">
@@ -416,57 +454,24 @@ export function InteractiveDemo() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-
-                  {/* Mensagens da IA em 3 Balões Enxutos com Fade-in Sequencial */}
-                  <div className="space-y-1.5 pt-0.5">
-                    {DEMO_DATA.aiReplies.map((reply, idx) => {
-                      // Balão 1 entra no step 5, Balão 2 no step 6, Balão 3 no step 7
-                      const shouldShow = currentStep >= 5 + idx;
-                      return (
-                        <AnimatePresence key={reply.id}>
-                          {shouldShow && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 12, scale: 0.96 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              transition={{ duration: 0.35, ease: 'easeOut' }}
-                              className="flex justify-start"
-                            >
-                              <div
-                                className={`max-w-[92%] sm:max-w-[85%] bg-[#202C33] text-gray-100 px-3.5 py-2.5 rounded-2xl shadow-xs border border-white/5 ${
-                                  idx === 0 ? 'rounded-tl-xs' : ''
-                                }`}
-                              >
-                                <p className="text-[13px] leading-snug text-gray-200">
-                                  {reply.text}
-                                </p>
-                                <div className="flex justify-end items-center gap-1 text-[10px] text-gray-400 mt-1 font-mono">
-                                  <span>{reply.time}</span>
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      );
-                    })}
-                  </div>
                 </div>
               </div>
 
-              {/* Rodapé informativo discreto */}
+              {/* Rodapé informativo */}
               <div className="pt-3 mt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-500">
                 <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  {currentStep >= 7 ? 'Triagem concluída em menos de 10s' : 'Atendimento inteligente em andamento...'}
+                  {isDone ? 'Atendimento concluído em menos de 10s' : 'Atendimento inteligente em tempo real'}
                 </span>
                 <span className="font-mono text-[10px] text-gray-600">Sem menus de robô</span>
               </div>
             </div>
 
-            {/* Conector Minimalista com Feixe de Pulso Ativo */}
+            {/* Conector Minimalista Centralizado no Gap */}
             <div className="hidden lg:flex absolute left-[58.333%] top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none items-center justify-center">
               <motion.div
                 animate={
-                  currentStep >= 8
+                  connectorActive
                     ? {
                         scale: [1, 1.15, 1],
                         boxShadow: [
@@ -481,13 +486,13 @@ export function InteractiveDemo() {
                 className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-lg shadow-black/80 backdrop-blur-md relative"
               >
                 <ArrowRight className="h-4 w-4 text-emerald-400" />
-                {currentStep >= 8 && (
+                {connectorActive && (
                   <span className="absolute -inset-1 rounded-full bg-emerald-400/20 animate-ping" />
                 )}
               </motion.div>
             </div>
 
-            {/* LADO DIREITO: CRM & Painel do Cliente (5 Colunas com Superfície Refinada) */}
+            {/* LADO DIREITO: CRM & Painel do Cliente (5 Colunas) */}
             <div className="lg:col-span-5 border border-white/[0.08] bg-[#111827]/80 bg-gradient-to-b from-white/[0.04] to-transparent backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden min-h-[490px]">
               <div className="flex flex-col flex-1">
                 {/* Header do Card CRM */}
@@ -498,14 +503,16 @@ export function InteractiveDemo() {
                     </span>
                     <h3 className="text-lg font-semibold text-white tracking-tight">{DEMO_DATA.leadName}</h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {currentStep >= 8 ? 'Triagem e agendamento realizados às 22h48 (em 6s)' : 'Aguardando dados da conversa...'}
+                      {crmMetricsActive
+                        ? 'Triagem e agendamento realizados às 22h48 (em 6s)'
+                        : 'Aguardando dados da conversa...'}
                     </p>
                   </div>
                   <motion.span
                     animate={
-                      currentStep >= 8
-                        ? { scale: [0.9, 1.05, 1], opacity: 1 }
-                        : { opacity: 0.6 }
+                      crmMetricsActive
+                        ? { scale: [0.95, 1.05, 1], opacity: 1 }
+                        : { opacity: 0.5 }
                     }
                     className="px-2.5 py-1 text-xs font-semibold rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shrink-0 flex items-center gap-1.5"
                   >
@@ -525,7 +532,7 @@ export function InteractiveDemo() {
                         <AnimatedCounter
                           target={DEMO_DATA.crm.score}
                           suffix="/100"
-                          active={currentStep >= 9}
+                          active={crmMetricsActive}
                         />
                       </span>
                     </div>
@@ -541,7 +548,7 @@ export function InteractiveDemo() {
                         <AnimatedCounter
                           target={DEMO_DATA.crm.ticket}
                           prefix="R$ "
-                          active={currentStep >= 9}
+                          active={crmMetricsActive}
                         />
                       </span>
                     </div>
@@ -549,15 +556,14 @@ export function InteractiveDemo() {
                   </div>
                 </div>
 
-                {/* Timeline Vertical de 3 Passos com Revelação Animada */}
+                {/* Timeline Vertical de 3 Passos */}
                 <div className="space-y-4 my-auto py-4">
                   <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block">
                     Ações Executadas Automaticamente
                   </span>
                   <div className="relative border-l border-white/10 ml-3 pl-4 space-y-4">
                     {DEMO_DATA.crm.timeline.map((step, idx) => {
-                      // Passos entram em sequência quando currentStep >= 9 ou 10
-                      const isStepActive = currentStep >= 9 + idx;
+                      const isStepActive = timelineStepsActive >= idx + 1;
                       return (
                         <motion.div
                           key={step.id}
@@ -599,13 +605,13 @@ export function InteractiveDemo() {
                 </div>
               </div>
 
-              {/* Botão de Ação com Efeito Glow quando a Simulação Conclui */}
+              {/* Botão de Ação com Destaque Suave */}
               <div className="pt-4 border-t border-white/[0.06] mt-auto">
                 <Button
                   variant="whatsapp"
                   className={`w-full text-sm font-semibold rounded-lg py-3 h-auto shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 group ${
-                    currentStep >= 10
-                      ? 'shadow-emerald-500/40 ring-2 ring-emerald-400/40'
+                    isDone
+                      ? 'shadow-emerald-500/30 ring-1 ring-emerald-400/30'
                       : 'shadow-emerald-500/20 hover:shadow-emerald-500/30'
                   }`}
                   onClick={() =>
