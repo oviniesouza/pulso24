@@ -183,13 +183,16 @@ export async function POST(request: Request) {
     let systemInstructions = basePrompt;
 
     if (history.length > 0) {
-      systemInstructions += `\n\n[INSTRUÇÃO CRÍTICA DE CONTINUIDADE]:
+      systemInstructions += `\n\n[INSTRUÇÃO CRÍTICA DE CONTINUIDADE E FORMATO]:
 Esta conversa JÁ ESTÁ EM ANDAMENTO com este cliente. As mensagens anteriores estão no histórico acima.
 - PROIBIDO começar a mensagem com saudações repetitivas como 'Oi', 'Olá', 'Oi [Nome]', 'Tudo bem?'. Comece direto com a resposta de forma natural (ex: 'Com certeza!', 'Sim, Vinícius!', 'Exatamente!', 'Com relação a isso...').
 - NUNCA se reapresente ('Sou a Bia', 'Sou consultora...').
 - NUNCA pergunte coisas que o cliente já informou (nome, segmento, etc.).
-- Responda diretamente e com dinamismo ao que o cliente acabou de falar, em no máximo 2 parágrafos curtos.
-- Finalize com uma pergunta ou direcionamento objetivo.`;
+- ESTRUTURA OBRIGATÓRIA EM PARÁGRAFOS (para envio em bolhas separadas no WhatsApp):
+  Pule SEMPRE uma linha em branco entre cada ideia (use 2 a 3 parágrafos curtos):
+  1º Bloco: Gancho ou confirmação direta rápida (ex: "Exatamente, Vinícius! 😊")
+  2º Bloco: Explicação objetiva da dúvida dele (1 a 2 frases claras).
+  3º Bloco: Pergunta única ou convite claro para o próximo passo.`;
     } else {
       systemInstructions += `\n\n[INSTRUÇÃO DE PRIMEIRO CONTATO]:
 Este é o primeiro contato do cliente. Acolha com simpatia e dinamismo, apresente-se como ${aiName} do Pulso 24 e pergunte com quem tem o prazer de falar e qual o segmento do negócio.`;
@@ -227,6 +230,41 @@ Este é o primeiro contato do cliente. Acolha com simpatia e dinamismo, apresent
 
     const openAiData = await openAiRes.json();
     const aiReply = openAiData.choices?.[0]?.message?.content || '';
+
+    // Dividir a resposta em parágrafos para envio humanizado (bolhas separadas)
+    const paragraphs = aiReply
+      .split(/\n\s*\n/)
+      .map((p: string) => p.trim())
+      .filter(Boolean);
+
+    // Se solicitado envio direto (sendDirect: true), envia cada parágrafo com delay de digitação
+    const sendDirect = body.sendDirect === true;
+    if (sendDirect && paragraphs.length > 0) {
+      for (let i = 0; i < paragraphs.length; i++) {
+        const textChunk = paragraphs[i];
+        try {
+          await fetch(`${EVOLUTION_API_URL}/message/sendText/${instance}`, {
+            method: 'POST',
+            headers: {
+              apikey: EVOLUTION_API_KEY,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              number: phone,
+              text: textChunk,
+              delay: 1200,
+            }),
+          });
+        } catch (err) {
+          console.error(`Erro ao enviar chunk ${i + 1} para Evolution API:`, err);
+        }
+
+        // Intervalo natural de 1.2 segundos entre as mensagens
+        if (i < paragraphs.length - 1) {
+          await new Promise((r) => setTimeout(r, 1200));
+        }
+      }
+    }
 
     // 7. Gravar no Supabase (Lead + IA com media_type correto)
     await supabase.from('messages').insert([
@@ -282,6 +320,8 @@ Este é o primeiro contato do cliente. Acolha com simpatia e dinamismo, apresent
     return NextResponse.json({
       success: true,
       reply: aiReply,
+      alreadySent: sendDirect,
+      chunks: paragraphs,
       transcription: isAudio ? userText : null,
       mediaType,
       leadId,
