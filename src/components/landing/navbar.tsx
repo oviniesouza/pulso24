@@ -21,10 +21,10 @@ export function Navbar() {
 
   const navLinks = [
     { label: 'Demonstração', href: '#demonstracao' },
-    { label: 'Economia', href: '#economia' },
     { label: 'Como Funciona', href: '#como-funciona' },
     { label: 'Depoimentos', href: '#depoimentos' },
     { label: 'Planos', href: '#planos' },
+    { label: 'Economia', href: '#economia' },
     { label: 'FAQ', href: '#faq' },
   ];
 

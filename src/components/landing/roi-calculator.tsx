@@ -28,7 +28,7 @@ export function RoiCalculator() {
             <span className="text-emerald-400">Quanto custa NÃO ter o Pulso 24?</span>
           </h2>
           <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-base leading-relaxed px-2">
-            Contratar mais pessoas para responder mensagens no WhatsApp é caro, lento e ineficiente. Veja o comparativo real entre a contratação tradicional e a nossa IA comercial:
+            Ainda na dúvida sobre o investimento? Compare o custo mensal da nossa IA com a contratação tradicional de 1 único atendente CLT:
           </p>
         </div>
 
