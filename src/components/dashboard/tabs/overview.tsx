@@ -145,6 +145,19 @@ export function OverviewTab() {
     .reduce((acc, curr) => acc + curr.count, 0);
   const nightPercentage = totalLeadsToday > 0 ? Math.round((nightLeadsTotal / totalLeadsToday) * 100) : 0;
 
+  // Métricas operacionais 100% reais do atendimento da empresa
+  const autonomyRate = totalLeadsToday > 0
+    ? Math.round((realLeads.filter((l) => l.ai_active).length / totalLeadsToday) * 100)
+    : 100;
+
+  const funnelProgressRate = totalLeadsToday > 0
+    ? Math.round((realLeads.filter((l) => l.stage !== 'novo').length / totalLeadsToday) * 100)
+    : 0;
+
+  const followupActiveRate = totalLeadsToday > 0
+    ? Math.round((realLeads.filter((l) => l.followup_count > 0 || l.next_followup_at).length / totalLeadsToday) * 100)
+    : 0;
+
   const statusBadgeVariant = (stage: string): 'default' | 'secondary' | 'warning' | 'outline' => {
     switch (stage) {
       case 'Qualificado':
@@ -336,21 +349,41 @@ export function OverviewTab() {
           <CardHeader className="pb-2 border-b border-white/5">
             <CardTitle className="text-base text-white flex items-center justify-between">
               <span>Status Operacional da IA</span>
-              <Badge variant="default" className="text-[10px]">
-                Alta Eficiência
+              <Badge variant="default" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                {activeTenant.whatsapp_connected ? 'Ativa 24/7' : 'Desconectada'}
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4 space-y-4">
             {[
-              { label: 'Precisão de Qualificação', value: 94, color: 'emerald' },
-              { label: 'Acolhimento com Empatia', value: 98, color: 'emerald' },
-              { label: 'Taxa de Follow-up 24/7', value: 89, color: 'cyan' },
-              { label: 'Resolução no 1º Contato', value: 76, color: 'cyan' },
+              {
+                label: 'Autonomia da IA (Sem Intervenção Manual)',
+                value: autonomyRate,
+                helper: `${realLeads.filter((l) => l.ai_active).length} de ${totalLeadsToday} leads no modo automático`,
+                color: 'emerald',
+              },
+              {
+                label: 'Avanço no Funil de Qualificação',
+                value: funnelProgressRate,
+                helper: `${realLeads.filter((l) => l.stage !== 'novo').length} de ${totalLeadsToday} leads triados além do início`,
+                color: 'emerald',
+              },
+              {
+                label: 'Plantão Noturno / Finais de Semana',
+                value: nightPercentage,
+                helper: `${nightLeadsTotal} contatos recebidos fora do expediente`,
+                color: 'cyan',
+              },
+              {
+                label: 'Régua de Follow-up 24/7',
+                value: followupActiveRate,
+                helper: `${realLeads.filter((l) => l.followup_count > 0).length} leads com follow-up disparado`,
+                color: 'cyan',
+              },
             ].map((item) => (
               <div key={item.label} className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="text-gray-300">{item.label}</span>
+                  <span className="text-gray-300 font-medium">{item.label}</span>
                   <span
                     className={`font-semibold ${
                       item.color === 'emerald' ? 'text-emerald-400' : 'text-cyan-400'
@@ -363,19 +396,27 @@ export function OverviewTab() {
                   value={item.value}
                   indicatorClassName={item.color === 'emerald' ? 'bg-emerald-500' : 'bg-cyan-500'}
                 />
+                <p className="text-[10px] text-gray-500">{item.helper}</p>
               </div>
             ))}
 
-            <div className="p-3 bg-[#0B0F17] border border-white/5 rounded-sm space-y-1 text-xs">
+            <div className="p-3 bg-[#0B0F17] border border-white/5 rounded-sm space-y-1.5 text-xs">
               <div className="flex items-center justify-between text-gray-400">
-                <span>Instância Ativa:</span>
-                <span className="font-mono text-emerald-400 font-semibold">
-                  {activeTenant.whatsapp_instance_name}
+                <span>Instância WhatsApp:</span>
+                <span className="font-mono text-emerald-400 font-semibold flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  {activeTenant.whatsapp_instance_name || 'pulso24_oficial'}
                 </span>
               </div>
               <div className="flex items-center justify-between text-gray-400">
-                <span>Modo de Escuta:</span>
-                <span className="text-gray-200">Áudio + Texto + Docs</span>
+                <span>Atendente IA:</span>
+                <span className="text-gray-200 font-medium">
+                  {activeTenant.ai_name || 'Bia (Consultora Pulso 24)'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-gray-400">
+                <span>Formatos Processados:</span>
+                <span className="text-cyan-400">Áudio (Whisper) + Texto + Docs</span>
               </div>
             </div>
           </CardContent>
