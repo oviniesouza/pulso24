@@ -90,14 +90,14 @@ export function InteractiveDemo() {
           </p>
         </div>
 
-        {/* Simulador Lado a Lado Compacto (p-5 sm:p-6) */}
+        {/* Simulador Lado a Lado Compacto com Grid Assimétrico de 12 Colunas */}
         <div className="relative">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch relative">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-10 items-stretch relative">
             {/* LADO ESQUERDO: WhatsApp do Cliente (7 Colunas) */}
             <div className="lg:col-span-7 border border-white/10 bg-[#111827]/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden">
               <div>
-                {/* Header do WhatsApp Mockup */}
-                <div className="bg-[#0B0F19]/90 px-3.5 py-2.5 rounded-xl border border-white/5 flex items-center justify-between mb-4">
+                {/* Header integrado ao topo da janela */}
+                <div className="px-5 sm:px-6 py-3.5 sm:py-4 bg-white/[0.03] border-b border-white/[0.08] rounded-t-2xl -mx-5 -mt-5 sm:-mx-6 sm:-mt-6 mb-5 flex items-center justify-between">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="relative shrink-0">
                       <div className="h-8 w-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
@@ -122,9 +122,9 @@ export function InteractiveDemo() {
 
                 {/* Mensagens do Cliente e Respostas da IA */}
                 <div className="space-y-2.5">
-                  {/* Mensagem 1 do Cliente: Áudio Compacto */}
+                  {/* Mensagem 1 do Cliente: Áudio Compacto em Esmeralda Escuro Sofisticado */}
                   <div className="flex justify-end">
-                    <div className="max-w-[92%] sm:max-w-[78%] bg-[#005C4B] text-white p-3 rounded-2xl rounded-tr-xs shadow-md border border-emerald-400/10">
+                    <div className="max-w-[92%] sm:max-w-[78%] bg-emerald-950/80 text-white p-3.5 rounded-2xl rounded-tr-xs shadow-md border border-emerald-500/30">
                       <div className="flex items-center gap-2.5">
                         <div className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0">
                           <Play className="h-3 w-3 fill-white ml-0.5" />
@@ -150,8 +150,8 @@ export function InteractiveDemo() {
                       </div>
 
                       {/* Tag Compacta e Elegante (Sem emoji duplicado) */}
-                      <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center gap-1.5 text-[11px] text-emerald-200 font-medium leading-tight">
-                        <Sparkles className="h-3 w-3 text-emerald-300 shrink-0" />
+                      <div className="mt-2.5 pt-2 border-t border-emerald-500/20 flex items-center gap-1.5 text-[11px] text-emerald-200 font-medium leading-tight">
+                        <Sparkles className="h-3.5 w-3.5 text-emerald-300 shrink-0" />
                         <span>{DEMO_DATA.audioTag}</span>
                       </div>
                     </div>
@@ -159,7 +159,7 @@ export function InteractiveDemo() {
 
                   {/* Mensagem 2 do Cliente: Anexo Processado Compacto */}
                   <div className="flex justify-end">
-                    <div className="max-w-[85%] sm:max-w-[70%] bg-[#005C4B] text-white py-2 px-3 rounded-2xl rounded-tr-xs shadow-md flex items-center gap-2.5 border border-emerald-400/10">
+                    <div className="max-w-[85%] sm:max-w-[70%] bg-emerald-950/80 text-white py-2.5 px-3.5 rounded-2xl rounded-tr-xs shadow-md flex items-center gap-2.5 border border-emerald-500/30">
                       <div className="h-8 w-8 bg-black/20 rounded-lg flex items-center justify-center text-emerald-300 shrink-0">
                         <FileText className="h-3.5 w-3.5" />
                       </div>
@@ -205,20 +205,18 @@ export function InteractiveDemo() {
               </div>
             </div>
 
-            {/* Conector Visual Sutil Causa -> Efeito (Desktop) */}
-            <div className="hidden lg:flex absolute left-[58.333%] top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0B0F19] border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)] text-[10px] font-mono text-gray-300 tracking-wider backdrop-blur-md">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>IA PULSO 24</span>
-                <ArrowRight className="h-3 w-3 text-emerald-400" />
+            {/* Conector Minimalista Centralizado no Gap (Desktop - Sem Sobreposição) */}
+            <div className="hidden lg:flex absolute left-[58.333%] top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-lg shadow-black/60 backdrop-blur-md">
+                <ArrowRight className="h-4 w-4 text-emerald-400" />
               </div>
             </div>
 
-            {/* LADO DIREITO: CRM & Painel do Cliente (5 Colunas) */}
-            <div className="lg:col-span-5 border border-white/10 bg-[#111827]/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden">
-              <div className="space-y-4">
+            {/* LADO DIREITO: CRM & Painel do Cliente (5 Colunas com Superfície Refinada) */}
+            <div className="lg:col-span-5 border border-white/[0.08] bg-[#111827]/80 bg-gradient-to-b from-white/[0.04] to-transparent backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+              <div className="flex flex-col flex-1">
                 {/* Header do Card CRM */}
-                <div className="flex items-start justify-between gap-3 border-b border-white/5 pb-3">
+                <div className="flex items-start justify-between gap-3 border-b border-white/[0.06] pb-3.5">
                   <div>
                     <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 block mb-0.5">
                       Resumo Inteligente • Gerado pela IA
@@ -231,9 +229,9 @@ export function InteractiveDemo() {
                   </span>
                 </div>
 
-                {/* Grid de Métricas com Proporção Equilibrada */}
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div className="bg-[#0B0F19]/80 border border-white/5 p-3.5 rounded-xl">
+                {/* Grid de Métricas com Destaque bg-black/30 */}
+                <div className="grid grid-cols-2 gap-3 pt-3">
+                  <div className="bg-black/30 border border-white/[0.06] rounded-xl p-4">
                     <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block mb-1">
                       Score de Compra
                     </span>
@@ -245,7 +243,7 @@ export function InteractiveDemo() {
                     <span className="text-xs font-medium text-emerald-400 mt-0.5 block">Lead Quente Pronto</span>
                   </div>
 
-                  <div className="bg-[#0B0F19]/80 border border-white/5 p-3.5 rounded-xl">
+                  <div className="bg-black/30 border border-white/[0.06] rounded-xl p-4">
                     <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block mb-1">
                       Ticket Estimado
                     </span>
@@ -258,12 +256,12 @@ export function InteractiveDemo() {
                   </div>
                 </div>
 
-                {/* Timeline Vertical de 3 Passos Compacta */}
-                <div className="py-1">
-                  <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block mb-2.5">
+                {/* Timeline Vertical de 3 Passos com Espaçamento Confortável */}
+                <div className="space-y-4 my-auto py-4">
+                  <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block">
                     Ações Executadas Automaticamente
                   </span>
-                  <div className="relative border-l border-white/10 ml-3 pl-4 space-y-2.5">
+                  <div className="relative border-l border-white/10 ml-3 pl-4 space-y-4">
                     {DEMO_DATA.crm.timeline.map((step) => (
                       <div key={step.id} className="relative group">
                         {/* Node Icon */}
@@ -283,7 +281,7 @@ export function InteractiveDemo() {
               </div>
 
               {/* Botão de Ação Único e Elegante com Altura Refinada */}
-              <div className="pt-4 border-t border-white/5 mt-4">
+              <div className="pt-4 border-t border-white/[0.06] mt-auto">
                 <Button
                   variant="whatsapp"
                   className="w-full text-sm font-semibold rounded-lg py-3 h-auto shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all cursor-pointer flex items-center justify-center gap-2 group"
