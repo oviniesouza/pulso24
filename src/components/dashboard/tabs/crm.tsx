@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Pause, Play, Bot, User, Send, Paperclip, Phone, Cloud, Mic, FileText, Filter, X, Search } from 'lucide-react';
+import { Pause, Play, Bot, User, Send, Paperclip, Phone, Cloud, Mic, FileText, Filter, X, Search, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   getLeads,
@@ -24,6 +24,36 @@ const STAGES = [
   { id: 'ganho', label: 'Convertido', color: 'text-emerald-300', accent: '#6EE7B7' },
 ] as const;
 
+function formatMessageDateTime(dateStr?: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+
+  const now = new Date();
+  const isToday =
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear();
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday =
+    date.getDate() === yesterday.getDate() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getFullYear() === yesterday.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const timeStr = `${hours}:${minutes}`;
+
+  if (isToday) return `Hoje às ${timeStr}`;
+  if (isYesterday) return `Ontem às ${timeStr}`;
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month} às ${timeStr}`;
+}
+
 export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
   const { activeTenant } = useTenant();
   const currentTenantId = activeTenantId || activeTenant.id;
@@ -35,6 +65,11 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
   const [inputText, setInputText] = useState('');
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Carregar Leads do Supabase
   const loadLeadsData = useCallback(async () => {
@@ -347,7 +382,7 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
 
                       <div className={`max-w-[85%] flex flex-col ${msg.sender_type === 'lead' ? 'items-start' : 'items-end'}`}>
                         <div
-                          className={`border px-3 py-2 text-xs leading-relaxed whitespace-pre-line ${
+                          className={`border px-3 py-2 text-xs leading-relaxed whitespace-pre-line rounded-sm ${
                             msg.sender_type === 'ai'
                               ? 'border-cyan-500/20 bg-cyan-500/5 text-gray-200'
                               : msg.sender_type === 'human'
@@ -369,10 +404,24 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
                           )}
                           {msg.content}
                         </div>
+
+                        {msg.created_at && (
+                          <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1 px-1 font-mono">
+                            <Clock className="h-2.5 w-2.5 opacity-60" />
+                            <span>{formatMessageDateTime(msg.created_at)}</span>
+                            {msg.sender_type === 'ai' && (
+                              <span className="text-cyan-400/80">· IA</span>
+                            )}
+                            {msg.sender_type === 'human' && (
+                              <span className="text-emerald-400/80">· Atendente</span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Input de Mensagem */}
