@@ -19,7 +19,7 @@ const DEMO_DATA = {
   leadName: 'Marina & Fernando Silveira',
   leadTime: 'Hoje às 22:48',
   audioDuration: '0:52',
-  audioTag: '✨ IA ouviu o áudio (0:52) e analisou a Planta_Apartamento.pdf em 6s',
+  audioTag: 'IA ouviu o áudio (0:52) e analisou a Planta_Apartamento.pdf em 6s',
   attachment: {
     name: 'Planta_Apartamento.pdf',
     size: '2.4 MB',
@@ -70,40 +70,40 @@ const DEMO_DATA = {
 
 export function InteractiveDemo() {
   return (
-    <section id="demonstracao" className="py-16 sm:py-24 bg-[#0B0F19] relative overflow-hidden border-t border-white/5">
+    <section id="demonstracao" className="py-14 sm:py-20 bg-[#0B0F19] relative overflow-hidden border-t border-white/5">
       {/* Luz ambiente suave de fundo */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[350px] sm:h-[450px] bg-emerald-500/5 blur-[140px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Cabeçalho da Seção */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+        {/* Cabeçalho da Seção Refinado e Compacto */}
+        <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/5 px-3 py-1 text-xs text-emerald-400 tracking-wider uppercase mb-3 rounded-full">
             <Sparkles className="h-3.5 w-3.5" />
             Veja na Prática
           </div>
-          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight px-1">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-[1.15] max-w-2xl mx-auto text-white px-1">
             O que acontece quando seu cliente <br className="hidden sm:block" />
             <span className="text-emerald-400">manda mensagem às 22h48?</span>
           </h2>
-          <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-base leading-relaxed px-2">
-            Sem o Pulso 24, a mensagem dorme até as 9h da manhã seguinte. Com o Pulso 24, o lead é acolhido com conversa humanizada em partes (sem textão robótico), o projeto é qualificado, a apresentação é agendada e o resumo cai no WhatsApp do seu consultor.
+          <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto mt-3 leading-relaxed px-2">
+            Enquanto o atendimento comum dorme até as 9h, a IA acolhe o cliente em segundos, analisa a planta e agenda a reunião direto no seu calendário.
           </p>
         </div>
 
-        {/* Simulador Lado a Lado com Espaçamento Amplo (p-8) e Breathing Room */}
+        {/* Simulador Lado a Lado Compacto (p-5 sm:p-6) */}
         <div className="relative">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch relative">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch relative">
             {/* LADO ESQUERDO: WhatsApp do Cliente (7 Colunas) */}
-            <div className="lg:col-span-7 border border-white/10 bg-[#111827]/80 backdrop-blur-md rounded-2xl p-5 sm:p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+            <div className="lg:col-span-7 border border-white/10 bg-[#111827]/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden">
               <div>
                 {/* Header do WhatsApp Mockup */}
-                <div className="bg-[#0B0F19]/90 px-4 py-3 rounded-xl border border-white/5 flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-3 min-w-0">
+                <div className="bg-[#0B0F19]/90 px-3.5 py-2.5 rounded-xl border border-white/5 flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div className="relative shrink-0">
-                      <div className="h-9 w-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                        <WhatsAppIcon size={18} />
+                      <div className="h-8 w-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                        <WhatsAppIcon size={16} />
                       </div>
-                      <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-[#111827]" />
+                      <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-400 border-2 border-[#111827]" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs sm:text-sm font-bold text-white truncate">
@@ -115,24 +115,24 @@ export function InteractiveDemo() {
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2.5 py-1 rounded border border-white/5">
+                  <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">
                     {DEMO_DATA.leadTime}
                   </span>
                 </div>
 
                 {/* Mensagens do Cliente e Respostas da IA */}
-                <div className="space-y-3">
-                  {/* Mensagem 1 do Cliente: Áudio com Tag Compacta Elegante */}
+                <div className="space-y-2.5">
+                  {/* Mensagem 1 do Cliente: Áudio Compacto */}
                   <div className="flex justify-end">
-                    <div className="max-w-[92%] sm:max-w-[78%] bg-[#005C4B] text-white p-3.5 rounded-2xl rounded-tr-xs shadow-md border border-emerald-400/10">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0">
-                          <Play className="h-3.5 w-3.5 fill-white ml-0.5" />
+                    <div className="max-w-[92%] sm:max-w-[78%] bg-[#005C4B] text-white p-3 rounded-2xl rounded-tr-xs shadow-md border border-emerald-400/10">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0">
+                          <Play className="h-3 w-3 fill-white ml-0.5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           {/* Onda sonora */}
-                          <div className="flex items-center gap-1 h-5 overflow-hidden">
-                            {[10, 18, 14, 24, 16, 22, 28, 18, 12, 20, 24, 14, 8].map((h, i) => (
+                          <div className="flex items-center gap-1 h-4 overflow-hidden">
+                            {[10, 16, 12, 20, 14, 18, 22, 16, 10, 18, 20, 12, 8].map((h, i) => (
                               <div
                                 key={i}
                                 className="w-1 bg-white/80 rounded-full shrink-0"
@@ -149,19 +149,19 @@ export function InteractiveDemo() {
                         </div>
                       </div>
 
-                      {/* Tag Compacta e Elegante */}
-                      <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center gap-1.5 text-[11px] text-emerald-200 font-medium leading-tight">
-                        <Sparkles className="h-3.5 w-3.5 text-emerald-300 shrink-0" />
+                      {/* Tag Compacta e Elegante (Sem emoji duplicado) */}
+                      <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center gap-1.5 text-[11px] text-emerald-200 font-medium leading-tight">
+                        <Sparkles className="h-3 w-3 text-emerald-300 shrink-0" />
                         <span>{DEMO_DATA.audioTag}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Mensagem 2 do Cliente: Anexo Processado */}
+                  {/* Mensagem 2 do Cliente: Anexo Processado Compacto */}
                   <div className="flex justify-end">
-                    <div className="max-w-[85%] sm:max-w-[70%] bg-[#005C4B] text-white p-2.5 rounded-2xl rounded-tr-xs shadow-md flex items-center gap-2.5 border border-emerald-400/10">
-                      <div className="h-9 w-9 bg-black/20 rounded-lg flex items-center justify-center text-emerald-300 shrink-0">
-                        <FileText className="h-4 w-4" />
+                    <div className="max-w-[85%] sm:max-w-[70%] bg-[#005C4B] text-white py-2 px-3 rounded-2xl rounded-tr-xs shadow-md flex items-center gap-2.5 border border-emerald-400/10">
+                      <div className="h-8 w-8 bg-black/20 rounded-lg flex items-center justify-center text-emerald-300 shrink-0">
+                        <FileText className="h-3.5 w-3.5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold truncate text-white">{DEMO_DATA.attachment.name}</p>
@@ -173,16 +173,16 @@ export function InteractiveDemo() {
                     </div>
                   </div>
 
-                  {/* Mensagens da IA em 3 Balões Curtos e Diretos */}
-                  <div className="space-y-2 pt-1">
+                  {/* Mensagens da IA em 3 Balões Enxutos (text-[13px] leading-snug) */}
+                  <div className="space-y-1.5 pt-0.5">
                     {DEMO_DATA.aiReplies.map((reply, idx) => (
                       <div key={reply.id} className="flex justify-start">
                         <div
-                          className={`max-w-[92%] sm:max-w-[85%] bg-[#202C33] text-gray-100 p-3 rounded-2xl shadow-sm border border-white/5 ${
+                          className={`max-w-[92%] sm:max-w-[85%] bg-[#202C33] text-gray-100 px-3.5 py-2.5 rounded-2xl shadow-xs border border-white/5 ${
                             idx === 0 ? 'rounded-tl-xs' : ''
                           }`}
                         >
-                          <p className="text-xs sm:text-[13px] leading-relaxed text-gray-200">
+                          <p className="text-[13px] leading-snug text-gray-200">
                             {reply.text}
                           </p>
                           <div className="flex justify-end items-center gap-1 text-[10px] text-gray-400 mt-1">
@@ -196,7 +196,7 @@ export function InteractiveDemo() {
               </div>
 
               {/* Rodapé informativo discreto */}
-              <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-500">
+              <div className="pt-3 mt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-500">
                 <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Conversa humanizada em blocos separados
@@ -215,15 +215,15 @@ export function InteractiveDemo() {
             </div>
 
             {/* LADO DIREITO: CRM & Painel do Cliente (5 Colunas) */}
-            <div className="lg:col-span-5 border border-white/10 bg-[#111827]/80 backdrop-blur-md rounded-2xl p-5 sm:p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden">
-              <div className="space-y-5">
+            <div className="lg:col-span-5 border border-white/10 bg-[#111827]/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+              <div className="space-y-4">
                 {/* Header do Card CRM */}
-                <div className="flex items-start justify-between gap-3 border-b border-white/5 pb-4">
+                <div className="flex items-start justify-between gap-3 border-b border-white/5 pb-3">
                   <div>
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 block mb-1">
+                    <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500 block mb-0.5">
                       Resumo Inteligente • Gerado pela IA
                     </span>
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">{DEMO_DATA.leadName}</h3>
+                    <h3 className="text-lg font-semibold text-white tracking-tight">{DEMO_DATA.leadName}</h3>
                     <p className="text-xs text-gray-400 mt-0.5">Triagem e agendamento realizados às 22h48 (em 6s)</p>
                   </div>
                   <span className="px-2.5 py-1 text-xs font-semibold rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shrink-0">
@@ -231,50 +231,50 @@ export function InteractiveDemo() {
                   </span>
                 </div>
 
-                {/* Grid de Métricas com Tipografia Grande */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-[#0B0F19]/80 border border-white/5 p-4 rounded-xl">
+                {/* Grid de Métricas com Proporção Equilibrada */}
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="bg-[#0B0F19]/80 border border-white/5 p-3.5 rounded-xl">
                     <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block mb-1">
                       Score de Compra
                     </span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                      <span className="text-2xl font-bold text-white tracking-tight">
                         {DEMO_DATA.crm.score}
                       </span>
                     </div>
-                    <span className="text-xs font-medium text-emerald-400 mt-1 block">Lead Quente Pronto</span>
+                    <span className="text-xs font-medium text-emerald-400 mt-0.5 block">Lead Quente Pronto</span>
                   </div>
 
-                  <div className="bg-[#0B0F19]/80 border border-white/5 p-4 rounded-xl">
+                  <div className="bg-[#0B0F19]/80 border border-white/5 p-3.5 rounded-xl">
                     <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block mb-1">
                       Ticket Estimado
                     </span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl sm:text-3xl font-extrabold text-emerald-400 tracking-tight truncate">
+                      <span className="text-2xl font-bold text-emerald-400 tracking-tight truncate">
                         {DEMO_DATA.crm.ticket}
                       </span>
                     </div>
-                    <span className="text-xs text-gray-400 mt-1 block">Validado no documento</span>
+                    <span className="text-xs text-gray-400 mt-0.5 block">Validado no documento</span>
                   </div>
                 </div>
 
-                {/* Timeline Vertical de 3 Passos */}
-                <div className="py-2">
-                  <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block mb-3">
+                {/* Timeline Vertical de 3 Passos Compacta */}
+                <div className="py-1">
+                  <span className="text-[10px] text-gray-500 uppercase font-mono tracking-wider block mb-2.5">
                     Ações Executadas Automaticamente
                   </span>
-                  <div className="relative border-l border-white/10 ml-3 pl-5 space-y-4">
+                  <div className="relative border-l border-white/10 ml-3 pl-4 space-y-2.5">
                     {DEMO_DATA.crm.timeline.map((step) => (
                       <div key={step.id} className="relative group">
                         {/* Node Icon */}
-                        <div className="absolute -left-[25px] top-0 h-6 w-6 rounded-full bg-[#111827] border border-emerald-500/40 text-emerald-400 flex items-center justify-center shadow-md">
-                          {step.type === 'check' && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
-                          {step.type === 'calendar' && <CalendarCheck className="h-3.5 w-3.5 stroke-[2.5]" />}
-                          {step.type === 'bell' && <Bell className="h-3.5 w-3.5 stroke-[2.5]" />}
+                        <div className="absolute -left-[23px] top-0.5 h-5 w-5 rounded-full bg-[#111827] border border-emerald-500/40 text-emerald-400 flex items-center justify-center shadow-md">
+                          {step.type === 'check' && <Check className="h-3 w-3 stroke-[2.5]" />}
+                          {step.type === 'calendar' && <CalendarCheck className="h-3 w-3 stroke-[2.5]" />}
+                          {step.type === 'bell' && <Bell className="h-3 w-3 stroke-[2.5]" />}
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-white leading-none">{step.title}</p>
-                          <p className="text-xs text-gray-400 mt-1 leading-relaxed">{step.detail}</p>
+                          <p className="text-[13px] font-semibold text-white leading-tight">{step.title}</p>
+                          <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{step.detail}</p>
                         </div>
                       </div>
                     ))}
@@ -282,11 +282,11 @@ export function InteractiveDemo() {
                 </div>
               </div>
 
-              {/* Botão de Ação Único e Elegante com Efeito Glow */}
-              <div className="pt-5 border-t border-white/5 mt-5">
+              {/* Botão de Ação Único e Elegante com Altura Refinada */}
+              <div className="pt-4 border-t border-white/5 mt-4">
                 <Button
                   variant="whatsapp"
-                  className="w-full text-xs sm:text-sm font-bold rounded-lg h-12 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all cursor-pointer flex items-center justify-center gap-2 group"
+                  className="w-full text-sm font-semibold rounded-lg py-3 h-auto shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all cursor-pointer flex items-center justify-center gap-2 group"
                   onClick={() =>
                     window.open(
                       getWhatsAppUrl('Quero ver a demonstração ao vivo da IA para móveis planejados'),
