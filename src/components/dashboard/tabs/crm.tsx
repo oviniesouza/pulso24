@@ -146,8 +146,21 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
     const textToSend = inputText;
     setInputText('');
 
-    // Grava no Supabase
-    await sendMessage(currentTenantId, selectedLead.id, textToSend, 'human');
+    // Dispara via API (grava no banco + envia no WhatsApp via Evolution API)
+    try {
+      await fetch('/api/chat/send-manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenant_id: currentTenantId,
+          lead_id: selectedLead.id,
+          phone: selectedLead.phone,
+          content: textToSend,
+        }),
+      });
+    } catch (err) {
+      console.error('Erro ao enviar mensagem manual:', err);
+    }
     setSending(false);
   };
 
