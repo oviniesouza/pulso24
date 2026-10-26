@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { syncLeadWhatsAppLabel } from '@/lib/services/whatsapp-labels';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://egmxgdvnxrjlrfajufdf.supabase.co';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_O1F3u_HUBtSHmu24N8Up9A_FOcQ083d';
@@ -137,6 +138,13 @@ export async function POST(request: Request) {
       }
       leadId = newLead.id;
       aiActive = newLead.ai_active;
+
+      // Sincroniza a etiqueta inicial "1. Novo Lead" no WhatsApp Business
+      syncLeadWhatsAppLabel({
+        instance,
+        phone,
+        newStage: 'novo',
+      }).catch((err) => console.warn('[chat/respond] Erro ao sincronizar etiqueta inicial:', err));
     }
 
     // Se o dono pausou a IA para este lead no Painel, salva a mensagem mas NÃO responde
@@ -288,9 +296,26 @@ Este é o primeiro contato do cliente. Acolha com simpatia e dinamismo, apresent
     // Atualizar Lead (resumo e estágio)
     const lower = userText.toLowerCase();
     let newStage: string | undefined;
-    if (lower.includes('agendar') || lower.includes('reunião') || lower.includes('horário') || lower.includes('demonstração')) {
+    if (
+      lower.includes('agendar') ||
+      lower.includes('reunião') ||
+      lower.includes('horário') ||
+      lower.includes('demonstração') ||
+      lower.includes('visita') ||
+      lower.includes('pode ser às') ||
+      lower.includes('amanhã')
+    ) {
       newStage = 'agendado';
-    } else if (lower.includes('preço') || lower.includes('plano') || lower.includes('quanto custa') || lower.includes('contratar')) {
+    } else if (
+      lower.includes('preço') ||
+      lower.includes('plano') ||
+      lower.includes('quanto custa') ||
+      lower.includes('contratar') ||
+      lower.includes('orçamento') ||
+      lower.includes('proposta') ||
+      lower.includes('fechar') ||
+      lower.includes('valor')
+    ) {
       newStage = 'qualificado';
     }
 
@@ -298,7 +323,15 @@ Este é o primeiro contato do cliente. Acolha com simpatia e dinamismo, apresent
       summary: `Último assunto: "${userText.slice(0, 90)}..."`,
       last_message_at: new Date().toISOString(),
     };
-    if (newStage) leadUpdate.stage = newStage;
+    if (newStage) {
+      leadUpdate.stage = newStage;
+      // Sincroniza etiqueta correspondente no WhatsApp Business (remove a antiga)
+      syncLeadWhatsAppLabel({
+        instance,
+        phone,
+        newStage,
+      }).catch((err) => console.warn('[chat/respond] Erro ao sincronizar etiqueta de estágio:', err));
+    }
     await supabase.from('leads').update(leadUpdate).eq('id', leadId);
 
     // 8. Deduzir custo estimado dos tokens em saas_expenses

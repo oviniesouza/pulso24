@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { syncLeadWhatsAppLabel } from '@/lib/services/whatsapp-labels';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://egmxgdvnxrjlrfajufdf.supabase.co';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_O1F3u_HUBtSHmu24N8Up9A_FOcQ083d';
@@ -74,6 +75,12 @@ export async function POST(request: Request) {
       }
 
       leadId = newLead.id;
+
+      // Sincroniza etiqueta inicial "1. Novo Lead" no WhatsApp Business
+      syncLeadWhatsAppLabel({
+        phone,
+        newStage: 'novo',
+      }).catch((err) => console.warn('[leads/record] Erro ao sincronizar etiqueta inicial:', err));
     }
 
     // 3. Registrar Mensagens

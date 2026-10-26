@@ -17,11 +17,11 @@ import { useTenant } from '@/contexts/tenant-context';
 import { useDashboardView } from '@/contexts/dashboard-view-context';
 
 const STAGES = [
-  { id: 'novo', label: 'Novo Lead', color: 'text-gray-400', accent: '#1F2937' },
-  { id: 'qualificando', label: 'Qualificando', color: 'text-cyan-400', accent: '#06B6D4' },
-  { id: 'qualificado', label: 'Qualificado', color: 'text-emerald-400', accent: '#10B981' },
-  { id: 'agendado', label: 'Agendado', color: 'text-amber-400', accent: '#F59E0B' },
-  { id: 'ganho', label: 'Convertido', color: 'text-emerald-300', accent: '#6EE7B7' },
+  { id: 'novo', label: '1. Novo Lead', color: 'text-blue-400', accent: '#3B82F6', badge: 'Novo' },
+  { id: 'qualificado', label: '2. Lead Quente', color: 'text-amber-400', accent: '#F59E0B', badge: 'Quente' },
+  { id: 'agendado', label: '3. Agendado', color: 'text-emerald-400', accent: '#10B981', badge: 'Agendado' },
+  { id: 'follow_up', label: '4. Aguardando Retorno', color: 'text-cyan-400', accent: '#06B6D4', badge: 'Follow-up' },
+  { id: 'ganho', label: '5. Fechado', color: 'text-emerald-300', accent: '#34D399', badge: 'Fechado' },
 ] as const;
 
 function formatMessageDateTime(dateStr?: string): string {
@@ -115,7 +115,7 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
       }
 
       if (crmFilter === 'hot') {
-        return lead.stage === 'qualificado';
+        return lead.stage === 'qualificado' || lead.stage === 'qualificando';
       }
       if (crmFilter === 'paused') {
         return !lead.ai_active;
@@ -228,15 +228,18 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
     setSending(false);
   };
 
-  // Mover de Estágio no Kanban
+  // Mover de Estágio no Kanban e Sincronizar Etiqueta no WhatsApp Business
   const handleStageChange = async (leadId: string, newStage: string) => {
+    const currentLead = leads.find((l) => l.id === leadId);
+    const prevStage = currentLead?.stage;
+
     setLeads((prev) =>
       prev.map((l) => (l.id === leadId ? { ...l, stage: newStage } : l))
     );
     if (selectedLead?.id === leadId) {
       setSelectedLead({ ...selectedLead, stage: newStage });
     }
-    await updateLeadStage(leadId, newStage);
+    await updateLeadStage(leadId, newStage, prevStage);
   };
 
   return (
@@ -286,7 +289,9 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
         <div className="xl:col-span-3 overflow-x-auto">
           <div className="flex gap-3 min-w-[750px]">
             {STAGES.map((col) => {
-              const stageLeads = visibleLeads.filter((l) => l.stage === col.id);
+              const stageLeads = visibleLeads.filter(
+                (l) => l.stage === col.id || (col.id === 'qualificado' && l.stage === 'qualificando')
+              );
               return (
                 <div key={col.id} className="flex-1 min-w-[140px]">
                   <div className="flex items-center justify-between mb-2">
@@ -367,6 +372,28 @@ export function CrmTab({ activeTenantId }: { activeTenantId?: string }) {
                   >
                     <Phone className="h-4 w-4 text-[#25D366]" />
                   </button>
+                </div>
+              </div>
+
+              {/* Barra de Etiqueta do WhatsApp / Estágio do Lead */}
+              <div className="border-b border-[#1F2937] bg-[#0B0F19]/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-gray-400 font-mono">🏷️ Etiqueta WhatsApp:</span>
+                  <select
+                    value={selectedLead.stage === 'qualificando' ? 'qualificado' : selectedLead.stage}
+                    onChange={(e) => handleStageChange(selectedLead.id, e.target.value)}
+                    className="bg-[#111827] border border-[#1F2937] text-white text-xs px-2.5 py-1 rounded-sm cursor-pointer font-medium hover:border-gray-500 focus:outline-none focus:border-emerald-500"
+                  >
+                    {STAGES.map((s) => (
+                      <option key={s.id} value={s.id} className="bg-[#111827] text-white">
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Sincronizado com Celular</span>
                 </div>
               </div>
 

@@ -236,14 +236,21 @@ export async function updateLeadAiStatus(leadId: string, aiActive: boolean) {
   }
 }
 
-export async function updateLeadStage(leadId: string, stage: string) {
+export async function updateLeadStage(leadId: string, stage: string, previousStage?: string) {
   try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('leads')
-      .update({ stage })
+      .update({ stage, last_message_at: new Date().toISOString() })
       .eq('id', leadId)
       .select();
+
+    // Sincroniza a etiqueta no WhatsApp Business do dono da empresa
+    fetch('/api/leads/update-stage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leadId, newStage: stage, previousStage }),
+    }).catch((err) => console.warn('[service] Erro ao sincronizar etiqueta no WhatsApp:', err));
 
     return { data, error };
   } catch (err) {
