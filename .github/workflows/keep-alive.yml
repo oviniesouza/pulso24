@@ -12,20 +12,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send keep-alive request
+        env:
+          INPUT_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           SUPABASE_URL="https://egmxgdvnxrjlrfajufdf.supabase.co"
-          API_KEY="${{ secrets.SUPABASE_ANON_KEY || 'sb_publishable_O1F3u_HUBtSHmu24N8Up9A_FOcQ083d' }}"
+          DEFAULT_KEY="sb_publishable_O1F3u_HUBtSHmu24N8Up9A_FOcQ083d"
+          API_KEY="${INPUT_KEY:-$DEFAULT_KEY}"
           
           echo "Disparando ping para o Supabase..."
-          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "${SUPABASE_URL}/rest/v1/tenants?select=id&limit=1" \
-            -H "apikey: ${API_KEY}" \
-            -H "Authorization: Bearer ${API_KEY}")
           
-          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d':' -f2)
+          # Executa o curl sem travar o runner caso o host esteja temporariamente indisponível
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${SUPABASE_URL}/rest/v1/tenants?select=id&limit=1" \
+            -H "apikey: ${API_KEY}" \
+            -H "Authorization: Bearer ${API_KEY}" || echo "000")
+          
           echo "Status retornado: $HTTP_STATUS"
           
           if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
-            echo "Sucesso! O Supabase registrou a atividade."
+            echo "✅ Sucesso! O Supabase registrou a atividade e zerou o contador de inatividade."
+          elif [ "$HTTP_STATUS" = "000" ]; then
+            echo "⚠️ Não foi possível conectar ao servidor (provavelmente o projeto está pausado no painel do Supabase)."
+            echo "Acesse https://supabase.com/dashboard/project/egmxgdvnxrjlrfajufdf para reativar."
           else
-            echo "Aviso: Resposta inesperada ($HTTP_STATUS), mas a tentativa de conexao foi enviada."
+            echo "⚠️ Supabase respondeu com status $HTTP_STATUS. A tentativa de conexao foi enviada."
           fi
